@@ -176,8 +176,6 @@ const App = () => {
   };
 
   return (
-
-  return (
     <div className={`min-h-screen transition-colors duration-500 ${themeClasses} ${fontFamily === 'serif' ? 'font-serif' : 'font-sans'}`}>
 
       {/* Tools */}
