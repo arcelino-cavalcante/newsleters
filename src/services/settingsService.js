@@ -1,45 +1,28 @@
-import { db } from "../lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { githubClient } from "./githubClient";
 
-const COLLECTION = "settings";
-const DOC_ID = "general";
+const FILE_PATH = "src/data/settings.json";
+
+const defaultSettings = {
+    siteTitle: "O CAMINHO DO HOMEM",
+    siteSubtitle: "FILOSOFIA APLICADA"
+};
 
 export const settingsService = {
-    // Buscar configurações gerais
     async getGeneralSettings() {
-        try {
-            const docRef = doc(db, COLLECTION, DOC_ID);
-            const docSnap = await getDoc(docRef);
+        if (!githubClient.isConfigured()) {
+            return defaultSettings;
+        }
 
-            if (docSnap.exists()) {
-                return docSnap.data();
-            } else {
-                // Return defaults if not set
-                return {
-                    siteTitle: "O CAMINHO DO HOMEM",
-                    siteSubtitle: "FILOSOFIA APLICADA"
-                };
-            }
+        try {
+            const data = await githubClient.getJsonFile(FILE_PATH);
+            return data || defaultSettings;
         } catch (error) {
-            console.error("Erro ao buscar configurações:", error);
-            return {
-                siteTitle: "O CAMINHO DO HOMEM",
-                siteSubtitle: "FILOSOFIA APLICADA"
-            };
+            console.warn("Settings not found or check failed, using defaults");
+            return defaultSettings;
         }
     },
 
-    // Atualizar configurações
     async updateGeneralSettings(data) {
-        try {
-            const docRef = doc(db, COLLECTION, DOC_ID);
-            await setDoc(docRef, {
-                ...data,
-                updatedAt: new Date().toISOString()
-            }, { merge: true });
-        } catch (error) {
-            console.error("Erro ao atualizar configurações:", error);
-            throw error;
-        }
+        await githubClient.saveJsonFile(FILE_PATH, data, "Update site settings");
     }
 };
