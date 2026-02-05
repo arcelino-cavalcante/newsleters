@@ -33,9 +33,25 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         category: initialPost?.category || 'Documentação',
         readTime: initialPost?.readTime || '5 min',
         coverImage: initialPost?.coverImage || '',
-        attachments: initialPost?.attachments || [], // [{ name, url, type }]
+        attachments: initialPost?.attachments || [],
+        status: initialPost?.status || 'published', // 'draft' | 'published'
+        tags: initialPost?.tags || [],
+        slug: initialPost?.slug || '',
         content: []
     });
+
+    // Auto-generate slug from title if empty
+    useEffect(() => {
+        if (!initialPost && postData.title && !postData.slug) {
+            const slug = postData.title
+                .toLowerCase()
+                .normalize('NFD') // Remove accents
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-');
+            setPostData(prev => ({ ...prev, slug }));
+        }
+    }, [postData.title]);
 
     // Initialize blocks
     const [blocks, setBlocks] = useState(() => {
@@ -352,6 +368,46 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                             </div>
 
                             <div className="space-y-6">
+                                {/* Status Toggle */}
+                                <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Status</label>
+                                    <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg">
+                                        <button
+                                            onClick={() => setPostData({ ...postData, status: 'draft' })}
+                                            className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded transition-all ${postData.status === 'draft' ? 'bg-white dark:bg-neutral-700 shadow text-black dark:text-white' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                        >
+                                            Rascunho
+                                        </button>
+                                        <button
+                                            onClick={() => setPostData({ ...postData, status: 'published' })}
+                                            className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded transition-all ${postData.status === 'published' ? 'bg-green-500 text-white shadow' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                        >
+                                            Publicado
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">URL Slug</label>
+                                    <input
+                                        type="text"
+                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm font-mono text-neutral-500 focus:text-black dark:focus:text-white focus:border-black dark:focus:border-white transition-colors"
+                                        value={postData.slug}
+                                        onChange={e => setPostData({ ...postData, slug: e.target.value })}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Tags (separadas por vírgula)</label>
+                                    <input
+                                        type="text"
+                                        placeholder="ex: react, tutorial, web"
+                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
+                                        value={postData.tags?.join(', ') || ''}
+                                        onChange={e => setPostData({ ...postData, tags: e.target.value.split(',').map(t => t.trim()) })}
+                                    />
+                                </div>
+
                                 <div>
                                     <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Categoria</label>
                                     <select

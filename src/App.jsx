@@ -61,7 +61,9 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       const remotePosts = await postService.getAllPosts();
-      setDbPosts(remotePosts);
+      // Filter out drafts for public view
+      const publicPosts = remotePosts.filter(p => p.status !== 'draft');
+      setDbPosts(publicPosts);
 
       const remoteCategories = await categoryService.getAllCategories();
       const visibleCategories = remoteCategories
