@@ -4,6 +4,7 @@ import {
   Sun, Moon, Maximize2, Minimize2,
   Clock, BookOpen, Settings, Filter, LogOut, UploadCloud
 } from 'lucide-react';
+import { githubClient } from './services/githubClient';
 import { categoryService } from './services/categoryService';
 import { settingsService } from './services/settingsService';
 import AdminDashboard from './components/AdminDashboard';
@@ -26,6 +27,12 @@ const App = () => {
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
+
+  // Check login status on load and whenever admin closes
+  useEffect(() => {
+    setHasAdminAccess(githubClient.isConfigured());
+  }, [showAdmin]);
 
   // Simple Routing: Check for ?admin or #admin
   useEffect(() => {
@@ -143,12 +150,14 @@ const App = () => {
             </h1>
 
             <div className="flex items-center space-x-2 md:space-x-4">
-              <button
-                onClick={() => setShowAdmin(true)}
-                className={`hidden md:block text-[10px] font-bold uppercase tracking-widest px-3 py-1 border ${borderClass} rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 opacity-50 hover:opacity-100 transition-all`}
-              >
-                ADMIN
-              </button>
+              {hasAdminAccess && (
+                <button
+                  onClick={() => setShowAdmin(true)}
+                  className={`hidden md:block text-[10px] font-bold uppercase tracking-widest px-3 py-1 border ${borderClass} rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 opacity-50 hover:opacity-100 transition-all`}
+                >
+                  ADMIN
+                </button>
+              )}
 
               <button onClick={toggleTheme} className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
                 {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
