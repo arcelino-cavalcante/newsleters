@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon, Loader2,
-    Bold, Italic, Link as LinkIcon, Quote, List, AlertCircle
+    Bold, Italic, Link as LinkIcon, Quote, List, AlertCircle, FileText, Trash2
 } from 'lucide-react';
 import { categoryService } from '../services/categoryService';
 import { postService } from '../services/postService';
@@ -16,6 +16,8 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
 
     const imageInputRef = useRef(null);
     const fileInputRef = useRef(null);
+    const coverInputRef = useRef(null);
+    const attachmentInputRef = useRef(null);
 
     useEffect(() => {
         const loadCats = async () => {
@@ -30,6 +32,8 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         excerpt: initialPost?.excerpt || '',
         category: initialPost?.category || 'Documentação',
         readTime: initialPost?.readTime || '5 min',
+        coverImage: initialPost?.coverImage || '',
+        attachments: initialPost?.attachments || [], // [{ name, url, type }]
         content: []
     });
 
@@ -120,6 +124,56 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         }, 0);
     };
 
+    const handleCoverUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setIsUploading(true);
+        try {
+            const url = await storageService.uploadFile(file, 'images');
+            setPostData(prev => ({ ...prev, coverImage: url }));
+        } catch (error) {
+            alert('Erro no upload: ' + error.message);
+        } finally {
+            setIsUploading(false);
+            e.target.value = null;
+        }
+    };
+
+    const handleAttachmentUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setIsUploading(true);
+        try {
+            const url = await storageService.uploadFile(file, 'files');
+            setPostData(prev => ({
+                ...prev,
+                attachments: [...prev.attachments, { name: file.name, url, type: file.type }]
+            }));
+        } catch (error) {
+            alert('Erro no upload: ' + error.message);
+        } finally {
+            setIsUploading(false);
+            e.target.value = null;
+        }
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setIsUploading(true);
+        try {
+            const url = await storageService.uploadFile(file, 'images');
+            const newBlocks = [...blocks];
+            newBlocks.push({ type: 'paragraph', content: `![Legenda da Imagem](${url})` });
+            setBlocks(newBlocks);
+        } catch (error) {
+            alert('Erro no upload: ' + error.message);
+        } finally {
+            setIsUploading(false);
+            e.target.value = null;
+        }
+    };
+
     const handlePublish = async () => {
         if (!postData.title) return alert('O título é obrigatório');
         setIsPublishing(true);
@@ -175,6 +229,11 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
 
     return (
         <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-950 flex flex-col animate-in fade-in duration-300">
+            {/* Hidden Inputs */}
+            <input type="file" ref={imageInputRef} hidden accept="image/*" onChange={handleImageUpload} />
+            <input type="file" ref={coverInputRef} hidden accept="image/*" onChange={handleCoverUpload} />
+            <input type="file" ref={attachmentInputRef} hidden accept=".pdf,.doc,.docx,.zip,.txt,image/*" onChange={handleAttachmentUpload} />
+
             {/* Toolbar */}
             <nav className="border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur px-6 py-3 flex justify-between items-center bg-white dark:bg-neutral-950 sticky top-0 z-20">
                 <div className="flex items-center gap-4">
@@ -186,12 +245,13 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                         <button onClick={() => formatText('bold')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Negrito"><Bold size={18} /></button>
                         <button onClick={() => formatText('italic')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Itálico"><Italic size={18} /></button>
                         <button onClick={() => insertText('[Texto](url)')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Link"><LinkIcon size={18} /></button>
+                        <button onClick={() => imageInputRef.current.click()} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Imagem"><ImageIcon size={18} /></button>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                     <button onClick={() => setMetaOpen(!metaOpen)} className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors ${metaOpen ? 'bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white' : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}>
-                        Configurações
+                        Metadados & Arquivos
                     </button>
                     <button
                         onClick={handlePublish}
@@ -207,11 +267,38 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
             <div className="flex-1 flex overflow-hidden">
                 {/* Main Editor Area */}
                 <div className="flex-1 overflow-y-auto px-6 py-12 md:px-20 md:py-16 scroll-smooth">
-                    <div className="max-w-4xl mx-auto min-h-[80vh]">
+                    <div className="max-w-[1200px] mx-auto min-h-[80vh]"> {/* WIDER CONTAINER */}
+
+                        {/* Cover Image Section */}
+                        <div
+                            className="group relative w-full h-48 md:h-80 bg-neutral-100 dark:bg-neutral-900 rounded-2xl mb-12 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-all border-2 border-dashed border-transparent hover:border-neutral-300 dark:hover:border-neutral-700"
+                            onClick={() => coverInputRef.current.click()}
+                        >
+                            {postData.coverImage ? (
+                                <img src={postData.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                                    <ImageIcon size={48} className="mx-auto mb-2 opacity-50" />
+                                    <span className="text-xs font-bold uppercase tracking-widest">Adicionar Capa</span>
+                                </div>
+                            )}
+                            {postData.coverImage && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPostData(prev => ({ ...prev, coverImage: '' }));
+                                    }}
+                                    className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            )}
+                        </div>
+
                         <input
                             type="text"
                             placeholder="Título do Artigo"
-                            className="w-full text-5xl md:text-6xl font-black bg-transparent border-none outline-none placeholder:text-neutral-200 dark:placeholder:text-neutral-800 mb-8 text-neutral-900 dark:text-white"
+                            className="w-full text-5xl md:text-7xl font-black bg-transparent border-none outline-none placeholder:text-neutral-200 dark:placeholder:text-neutral-800 mb-8 text-neutral-900 dark:text-white"
                             value={postData.title}
                             onChange={e => setPostData({ ...postData, title: e.target.value })}
                             autoFocus
@@ -257,47 +344,79 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
 
                 {/* Sidebar Metadata */}
                 {metaOpen && (
-                    <div className="w-80 border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 overflow-y-auto animate-in slide-in-from-right duration-300 z-30">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white mb-6">Metadados do Artigo</h3>
-
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Categoria</label>
-                                <select
-                                    className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
-                                    value={postData.category}
-                                    onChange={e => setPostData({ ...postData, category: e.target.value })}
-                                >
-                                    {categories.map(c => c !== 'Todos' && <option key={c} value={c}>{c}</option>)}
-                                </select>
+                    <div className="w-96 border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 overflow-y-auto animate-in slide-in-from-right duration-300 z-30 flex flex-col gap-8">
+                        <div>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Metadados</h3>
+                                <button onClick={() => setMetaOpen(false)} className="md:hidden text-neutral-500"><X size={18} /></button>
                             </div>
 
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Tempo de Leitura</label>
-                                <input
-                                    type="text"
-                                    className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
-                                    value={postData.readTime}
-                                    onChange={e => setPostData({ ...postData, readTime: e.target.value })}
-                                />
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Categoria</label>
+                                    <select
+                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
+                                        value={postData.category}
+                                        onChange={e => setPostData({ ...postData, category: e.target.value })}
+                                    >
+                                        {categories.map(c => c !== 'Todos' && <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Tempo de Leitura</label>
+                                    <input
+                                        type="text"
+                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
+                                        value={postData.readTime}
+                                        onChange={e => setPostData({ ...postData, readTime: e.target.value })}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Resumo</label>
+                                    <textarea
+                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors min-h-[120px] resize-none leading-relaxed"
+                                        value={postData.excerpt}
+                                        onChange={e => setPostData({ ...postData, excerpt: e.target.value })}
+                                        placeholder="Breve descrição..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Attachments Section */}
+                        <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white mb-6">Arquivos e Downloads</h3>
+
+                            <div className="space-y-3 mb-4">
+                                {postData.attachments.map((file, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg group">
+                                        <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-500">
+                                            <FileText size={16} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-bold truncate text-neutral-900 dark:text-white">{file.name}</div>
+                                            <div className="text-[10px] text-neutral-400 truncate">{file.url}</div>
+                                        </div>
+                                        <button
+                                            onClick={() => setPostData(prev => ({ ...prev, attachments: prev.attachments.filter((_, idx) => idx !== i) }))}
+                                            className="p-2 text-neutral-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
 
-                            <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Resumo</label>
-                                <textarea
-                                    className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors min-h-[120px] resize-none leading-relaxed"
-                                    value={postData.excerpt}
-                                    onChange={e => setPostData({ ...postData, excerpt: e.target.value })}
-                                    placeholder="Breve descrição para aparecer na lista..."
-                                />
-                            </div>
-
-                            <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800">
-                                <p className="text-[10px] text-neutral-400 leading-relaxed">
-                                    <AlertCircle size={12} className="inline mr-1" />
-                                    Dica: Use <strong>##</strong> para subtítulos, <strong>-</strong> para listas e <strong>&gt;</strong> para citações diretamente no texto.
-                                </p>
-                            </div>
+                            <button
+                                onClick={() => attachmentInputRef.current.click()}
+                                disabled={isUploading}
+                                className="w-full py-3 border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-lg text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-400 dark:hover:border-neutral-600 transition-all flex items-center justify-center gap-2"
+                            >
+                                {isUploading ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
+                                Adicionar Arquivo
+                            </button>
                         </div>
                     </div>
                 )}
