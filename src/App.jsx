@@ -125,6 +125,58 @@ const App = () => {
   const tableOfContents = isDocs ? getTableOfContents(readingPost.content) : [];
 
   return (
+  // Helper for inline markdown (Bold, Italic, Link)
+  const renderMarkdown = (text) => {
+      // 1. Handle Links: [Text](URL)
+      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+      const parts = [];
+      let lastIndex = 0;
+      let match;
+
+      while ((match = linkRegex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          parts.push(parseFormattedText(text.substring(lastIndex, match.index)));
+        }
+        parts.push(
+          <a
+            key={match.index}
+            href={match[2]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-1 underline-offset-2 hover:opacity-70 transition-opacity"
+          >
+            {match[1]}
+          </a>
+        );
+        lastIndex = linkRegex.lastIndex;
+      }
+      if (lastIndex < text.length) {
+        parts.push(parseFormattedText(text.substring(lastIndex)));
+      }
+      return parts;
+    };
+
+  // Helper for Bold/Italic within text segments (already split by links)
+  const parseFormattedText = (text) => {
+    // Split by **bold** first
+    const boldParts = text.split(/(\*\*[^*]+\*\*)/g);
+    return boldParts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
+      }
+
+      // Then split by *italic*
+      const italicParts = part.split(/(\*[^*]+\*)/g);
+      return italicParts.map((subPart, j) => {
+        if (subPart.startsWith('*') && subPart.endsWith('*')) {
+          return <em key={`${i}-${j}`} className="italic">{subPart.slice(1, -1)}</em>;
+        }
+        return subPart;
+      });
+    });
+  };
+
+  return (
     <div className={`min-h-screen transition-colors duration-500 ${themeClasses} ${fontFamily === 'serif' ? 'font-serif' : 'font-sans'}`}>
 
       {/* Tools */}
@@ -343,6 +395,24 @@ const App = () => {
                         );
                       }
 
+                      // Check if paragraph is a quote
+                      if (paragraph.startsWith('> ')) {
+                        return (
+                          <blockquote key={index} className="pl-6 border-l-4 border-neutral-300 dark:border-neutral-700 italic text-lg opacity-80 my-8">
+                            {renderMarkdown(paragraph.replace('> ', ''))}
+                          </blockquote>
+                        );
+                      }
+
+                      // Check if paragraph is a list item
+                      if (paragraph.startsWith('- ')) {
+                        return (
+                          <li key={index} className="list-inside list-disc ml-4 marker:text-neutral-400">
+                            {renderMarkdown(paragraph.replace('- ', ''))}
+                          </li>
+                        );
+                      }
+
                       // Image Rendering ![Alt](URL)
                       const imgMatch = paragraph.match(/^!\[(.*?)\]\((.*?)\)$/);
                       if (imgMatch) {
@@ -361,7 +431,7 @@ const App = () => {
 
                       // File Download Rendering [Text](URL)
                       const linkMatch = paragraph.match(/^\[(.*?)\]\((.*?)\)$/);
-                      if (linkMatch) {
+                      if (linkMatch && !paragraph.includes('![')) { // Safety check to not match images
                         return (
                           <div key={index} className="my-6">
                             <a
@@ -374,7 +444,7 @@ const App = () => {
                                 <UploadCloud className="text-black dark:text-white" size={20} />
                               </div>
                               <div>
-                                <div className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Download</div>
+                                <div className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Download/Link</div>
                                 <div className="font-bold text-sm text-black dark:text-white group-hover:underline">{linkMatch[1]}</div>
                               </div>
                             </a>
@@ -382,9 +452,10 @@ const App = () => {
                         );
                       }
 
+                      // Default Paragraph with Inline Markdown
                       return (
                         <p key={index} className="mb-6 last:mb-0">
-                          {paragraph}
+                          {renderMarkdown(paragraph)}
                         </p>
                       );
                     })}
@@ -399,6 +470,13 @@ const App = () => {
                     <p className={`font-sans text-[10px] uppercase tracking-[0.3em] font-bold ${mutedText}`}>
                       Fim do Artigo • MensLog Archive
                     </p>
+                    {readingPost.tags && readingPost.tags.length > 0 && (
+                      <div className="flex gap-2 justify-center mt-4">
+                        {readingPost.tags.map(tag => (
+                          <span key={tag} className="text-[10px] px-2 py-1 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-500 uppercase tracking-wider">{tag}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <button
