@@ -124,37 +124,36 @@ const App = () => {
   const isDocs = readingPost?.category === 'Documentação';
   const tableOfContents = isDocs ? getTableOfContents(readingPost.content) : [];
 
-  return (
   // Helper for inline markdown (Bold, Italic, Link)
   const renderMarkdown = (text) => {
-      // 1. Handle Links: [Text](URL)
-      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-      const parts = [];
-      let lastIndex = 0;
-      let match;
+    // 1. Handle Links: [Text](URL)
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
 
-      while ((match = linkRegex.exec(text)) !== null) {
-        if (match.index > lastIndex) {
-          parts.push(parseFormattedText(text.substring(lastIndex, match.index)));
-        }
-        parts.push(
-          <a
-            key={match.index}
-            href={match[2]}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline decoration-1 underline-offset-2 hover:opacity-70 transition-opacity"
-          >
-            {match[1]}
-          </a>
-        );
-        lastIndex = linkRegex.lastIndex;
+    while ((match = linkRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(parseFormattedText(text.substring(lastIndex, match.index)));
       }
-      if (lastIndex < text.length) {
-        parts.push(parseFormattedText(text.substring(lastIndex)));
-      }
-      return parts;
-    };
+      parts.push(
+        <a
+          key={match.index}
+          href={match[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-1 underline-offset-2 hover:opacity-70 transition-opacity"
+        >
+          {match[1]}
+        </a>
+      );
+      lastIndex = linkRegex.lastIndex;
+    }
+    if (lastIndex < text.length) {
+      parts.push(parseFormattedText(text.substring(lastIndex)));
+    }
+    return parts;
+  };
 
   // Helper for Bold/Italic within text segments (already split by links)
   const parseFormattedText = (text) => {
@@ -175,6 +174,8 @@ const App = () => {
       });
     });
   };
+
+  return (
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${themeClasses} ${fontFamily === 'serif' ? 'font-serif' : 'font-sans'}`}>
