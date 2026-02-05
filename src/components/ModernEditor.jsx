@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon, Loader2 } from 'lucide-react';
+import {
+    ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon, Loader2,
+    Bold, Italic, Link as LinkIcon, Quote, List, AlertCircle
+} from 'lucide-react';
 import { categoryService } from '../services/categoryService';
 import { postService } from '../services/postService';
 import { storageService } from '../services/storageService';
@@ -9,6 +12,7 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
     const [isPublishing, setIsPublishing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [categories, setCategories] = useState([]);
+    const [activeBlock, setActiveBlock] = useState(null);
 
     const imageInputRef = useRef(null);
     const fileInputRef = useRef(null);
@@ -29,32 +33,31 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         content: []
     });
 
-    // Initialize blocks from existing content or default empty
+    // Initialize blocks
     const [blocks, setBlocks] = useState(() => {
         if (initialPost?.content) {
             return initialPost.content.map(line => {
-                if (line.startsWith('## ')) {
-                    return { type: 'header', content: line.replace('## ', '') };
-                }
+                if (line.startsWith('## ')) return { type: 'header', content: line.replace('## ', '') };
+                if (line.startsWith('> ')) return { type: 'quote', content: line.replace('> ', '') };
+                if (line.startsWith('- ')) return { type: 'list', content: line.replace('- ', '') };
                 return { type: 'paragraph', content: line };
             });
         }
         return [{ type: 'paragraph', content: '' }];
     });
 
-    // Handle block changes
     const updateBlock = (index, value) => {
         const newBlocks = [...blocks];
         newBlocks[index].content = value;
         setBlocks(newBlocks);
     };
 
-    // Add new block on Enter
     const handleKeyDown = (e, index) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             const newBlocks = [...blocks];
-            newBlocks.splice(index + 1, 0, { type: 'paragraph', content: '' });
+            const nextType = blocks[index].type === 'list' ? 'list' : 'paragraph';
+            newBlocks.splice(index + 1, 0, { type: nextType, content: '' });
             setBlocks(newBlocks);
             setTimeout(() => document.getElementById(`block-${index + 1}`)?.focus(), 0);
         }
@@ -66,49 +69,55 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         }
     };
 
-    // Convert block type
-    const toggleBlockType = (index) => {
+    const toggleBlockType = (index, type) => {
         const newBlocks = [...blocks];
-        newBlocks[index].type = newBlocks[index].type === 'header' ? 'paragraph' : 'header';
+        newBlocks[index].type = newBlocks[index].type === type ? 'paragraph' : type;
         setBlocks(newBlocks);
     };
 
-    // Handle Image Upload
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const insertText = (text) => {
+        if (activeBlock === null) return;
+        const input = document.getElementById(`block-${activeBlock}`);
+        if (!input) return;
 
-        setIsUploading(true);
-        try {
-            const url = await storageService.uploadFile(file, 'images');
-            const newBlocks = [...blocks];
-            newBlocks.push({ type: 'paragraph', content: `![Legenda da Imagem](${url})` });
-            setBlocks(newBlocks);
-        } catch (error) {
-            alert('Erro no upload: ' + error.message);
-        } finally {
-            setIsUploading(false);
-            e.target.value = null;
-        }
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const current = blocks[activeBlock].content;
+        const before = current.substring(0, start);
+        const after = current.substring(end);
+
+        updateBlock(activeBlock, before + text + after);
+        setTimeout(() => {
+            input.focus();
+            input.setSelectionRange(start + text.length, start + text.length);
+        }, 0);
     };
 
-    // Handle File Upload
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const formatText = (format) => {
+        if (activeBlock === null) return;
+        const input = document.getElementById(`block-${activeBlock}`);
+        if (!input) return;
 
-        setIsUploading(true);
-        try {
-            const url = await storageService.uploadFile(file, 'files');
-            const newBlocks = [...blocks];
-            newBlocks.push({ type: 'paragraph', content: `[${file.name}](${url})` });
-            setBlocks(newBlocks);
-        } catch (error) {
-            alert('Erro no upload: ' + error.message);
-        } finally {
-            setIsUploading(false);
-            e.target.value = null;
-        }
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const current = blocks[activeBlock].content;
+        const selected = current.substring(start, end);
+
+        if (!selected) return;
+
+        let formatted = selected;
+        if (format === 'bold') formatted = `**${selected}**`;
+        if (format === 'italic') formatted = `*${selected}*`;
+
+        const before = current.substring(0, start);
+        const after = current.substring(end);
+
+        updateBlock(activeBlock, before + formatted + after);
+
+        setTimeout(() => {
+            input.focus();
+            input.setSelectionRange(start, start + formatted.length);
+        }, 0);
     };
 
     const handlePublish = async () => {
@@ -116,8 +125,12 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         setIsPublishing(true);
 
         try {
-            // Convert blocks to content array
-            const contentArray = blocks.map(b => b.type === 'header' ? `## ${b.content}` : b.content).filter(t => t.trim() !== '');
+            const contentArray = blocks.map(b => {
+                if (b.type === 'header') return `## ${b.content}`;
+                if (b.type === 'quote') return `> ${b.content}`;
+                if (b.type === 'list') return `- ${b.content}`;
+                return b.content;
+            }).filter(t => t.trim() !== '');
 
             const finalData = {
                 ...postData,
@@ -126,17 +139,15 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
 
             if (initialPost?.id) {
                 await postService.updatePost(initialPost.id, finalData);
-                alert('Artigo atualizado com sucesso!');
             } else {
                 await postService.createPost({
                     ...finalData,
                     date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }),
                 });
-                alert('Artigo publicado com sucesso!');
             }
-
+            alert('Salvo com sucesso!');
             onClose();
-            window.location.reload();
+            // window.location.reload(); // Removed reload to make it smoother
         } catch (error) {
             alert('Erro ao salvar: ' + error.message);
         } finally {
@@ -144,144 +155,153 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-950 overflow-y-auto animate-in fade-in duration-300">
-            {/* Hidden Inputs */}
-            <input type="file" ref={imageInputRef} hidden accept="image/*" onChange={handleImageUpload} />
-            <input type="file" ref={fileInputRef} hidden accept=".pdf,.doc,.docx,.zip,.txt" onChange={handleFileUpload} />
+    const getBlockPlaceholder = (type) => {
+        switch (type) {
+            case 'header': return 'Título da Seção...';
+            case 'quote': return 'Digite a citação...';
+            case 'list': return 'Item da lista...';
+            default: return 'Comece a escrever... (/ para comandos)';
+        }
+    };
 
-            {/* Top Bar */}
-            <nav className="sticky top-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-neutral-200 dark:border-neutral-800 px-6 py-4 flex justify-between items-center">
+    const getBlockClass = (type) => {
+        switch (type) {
+            case 'header': return 'text-3xl font-bold mt-8 mb-4 text-neutral-900 dark:text-white tracking-tight';
+            case 'quote': return 'text-xl italic text-neutral-600 dark:text-neutral-400 border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 py-2 my-4';
+            case 'list': return 'list-item list-inside ml-4 text-lg text-neutral-800 dark:text-neutral-200';
+            default: return 'text-lg leading-relaxed text-neutral-800 dark:text-neutral-200';
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-950 flex flex-col animate-in fade-in duration-300">
+            {/* Toolbar */}
+            <nav className="border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur px-6 py-3 flex justify-between items-center bg-white dark:bg-neutral-950 sticky top-0 z-20">
                 <div className="flex items-center gap-4">
                     <button onClick={onClose} className="p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
                         <ArrowLeft size={20} />
                     </button>
-                    <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Editor Profissional</span>
+                    <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-800 mx-2" />
+                    <div className="flex gap-1">
+                        <button onClick={() => formatText('bold')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Negrito"><Bold size={18} /></button>
+                        <button onClick={() => formatText('italic')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Itálico"><Italic size={18} /></button>
+                        <button onClick={() => insertText('[Texto](url)')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Link"><LinkIcon size={18} /></button>
+                    </div>
                 </div>
+
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setMetaOpen(true)}
-                        className="text-xs font-bold uppercase tracking-widest px-4 py-2 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors border border-transparent hover:border-neutral-200 dark:hover:border-neutral-800"
-                    >
-                        Metadados
-                    </button>
-                    <button
-                        onClick={() => imageInputRef.current.click()}
-                        className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
-                        title="Inserir Imagem"
-                        disabled={isUploading}
-                    >
-                        {isUploading ? <Loader2 size={20} className="animate-spin text-neutral-400" /> : <ImageIcon size={20} className="text-neutral-600 dark:text-neutral-400" />}
-                    </button>
-                    <button
-                        onClick={() => fileInputRef.current.click()}
-                        className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
-                        title="Anexar Arquivo"
-                        disabled={isUploading}
-                    >
-                        {isUploading ? <Loader2 size={20} className="animate-spin text-neutral-400" /> : <UploadCloud size={20} className="text-neutral-600 dark:text-neutral-400" />}
+                    <button onClick={() => setMetaOpen(!metaOpen)} className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors ${metaOpen ? 'bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white' : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}>
+                        Configurações
                     </button>
                     <button
                         onClick={handlePublish}
                         disabled={isPublishing}
-                        className="bg-neutral-900 text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-widest px-6 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg shadow-black/5 dark:shadow-white/5"
+                        className="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-80 transition-opacity flex items-center gap-2"
                     >
-                        {isPublishing ? 'Publicando...' : <><Save size={14} /> Publicar</>}
+                        {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                        {isPublishing ? 'Salvando...' : 'Publicar'}
                     </button>
                 </div>
             </nav>
 
-            <div className="max-w-3xl mx-auto px-6 py-20 min-h-screen">
-                {/* Title Input */}
-                <input
-                    type="text"
-                    placeholder="Título do Artigo"
-                    className="w-full text-5xl md:text-6xl font-black bg-transparent border-none outline-none placeholder:text-neutral-300 dark:placeholder:text-neutral-700 mb-12 text-neutral-900 dark:text-white"
-                    value={postData.title}
-                    onChange={e => setPostData({ ...postData, title: e.target.value })}
-                    autoFocus
-                />
+            <div className="flex-1 flex overflow-hidden">
+                {/* Main Editor Area */}
+                <div className="flex-1 overflow-y-auto px-6 py-12 md:px-20 md:py-16 scroll-smooth">
+                    <div className="max-w-4xl mx-auto min-h-[80vh]">
+                        <input
+                            type="text"
+                            placeholder="Título do Artigo"
+                            className="w-full text-5xl md:text-6xl font-black bg-transparent border-none outline-none placeholder:text-neutral-200 dark:placeholder:text-neutral-800 mb-8 text-neutral-900 dark:text-white"
+                            value={postData.title}
+                            onChange={e => setPostData({ ...postData, title: e.target.value })}
+                            autoFocus
+                        />
 
-                {/* Blocks Editor */}
-                <div className="space-y-4">
-                    {blocks.map((block, index) => (
-                        <div key={index} className="group relative flex items-start gap-2">
-                            <button
-                                onClick={() => toggleBlockType(index)}
-                                className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 text-neutral-400 hover:text-neutral-900 dark:text-neutral-600 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded"
-                                title="Alternar Título/Texto"
-                            >
-                                {block.type === 'header' ? <Type size={16} /> : <Layout size={16} />}
-                            </button>
+                        <div className="space-y-4">
+                            {blocks.map((block, index) => (
+                                <div key={index} className="group relative flex items-start -ml-12 pl-12">
+                                    {/* Trigger Actions */}
+                                    <div className="absolute left-0 top-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                        <button onClick={() => toggleBlockType(index, 'header')} className={`p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 ${block.type === 'header' ? 'text-black dark:text-white' : 'text-neutral-400'}`} title="Título"><Type size={16} /></button>
+                                        <button onClick={() => toggleBlockType(index, 'quote')} className={`p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 ${block.type === 'quote' ? 'text-black dark:text-white' : 'text-neutral-400'}`} title="Citação"><Quote size={16} /></button>
+                                        <button onClick={() => toggleBlockType(index, 'list')} className={`p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 ${block.type === 'list' ? 'text-black dark:text-white' : 'text-neutral-400'}`} title="Lista"><List size={16} /></button>
+                                    </div>
 
-                            <textarea
-                                id={`block-${index}`}
-                                value={block.content}
-                                onChange={(e) => {
-                                    updateBlock(index, e.target.value);
-                                    // Auto-resize
-                                    e.target.style.height = 'auto';
-                                    e.target.style.height = e.target.scrollHeight + 'px';
-                                }}
-                                onKeyDown={(e) => handleKeyDown(e, index)}
-                                placeholder={block.type === 'header' ? "Título da Seção..." : "Comece a escrever..."}
-                                className={`w-full bg-transparent border-none outline-none resize-none overflow-hidden placeholder:text-neutral-300 dark:placeholder:text-neutral-700 ${block.type === 'header'
-                                    ? 'text-3xl font-bold mt-8 mb-4 text-neutral-900 dark:text-white tracking-tight'
-                                    : 'text-lg leading-relaxed text-neutral-800 dark:text-neutral-200'
-                                    }`}
-                                rows={1}
-                            />
+                                    <textarea
+                                        id={`block-${index}`}
+                                        value={block.content}
+                                        onClick={() => setActiveBlock(index)}
+                                        onChange={(e) => {
+                                            updateBlock(index, e.target.value);
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = e.target.scrollHeight + 'px';
+                                        }}
+                                        onKeyDown={(e) => handleKeyDown(e, index)}
+                                        placeholder={getBlockPlaceholder(block.type)}
+                                        className={`w-full bg-transparent border-none outline-none resize-none overflow-hidden placeholder:text-neutral-200 dark:placeholder:text-neutral-800 ${getBlockClass(block.type)}`}
+                                        rows={1}
+                                    />
+                                </div>
+                            ))}
                         </div>
-                    ))}
+
+                        <div
+                            className="mt-8 py-8 border-t border-dashed border-neutral-200 dark:border-neutral-800 text-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 cursor-pointer transition-colors"
+                            onClick={() => setBlocks([...blocks, { type: 'paragraph', content: '' }])}
+                        >
+                            <Plus className="mx-auto mb-2" />
+                            <span className="text-xs font-bold uppercase tracking-widest">Adicionar Novo Bloco</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div
-                    className="mt-12 opacity-40 hover:opacity-100 cursor-pointer flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-opacity text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
-                    onClick={() => setBlocks([...blocks, { type: 'paragraph', content: '' }])}
-                >
-                    <Plus size={16} /> Novo Bloco
-                </div>
+                {/* Sidebar Metadata */}
+                {metaOpen && (
+                    <div className="w-80 border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 overflow-y-auto animate-in slide-in-from-right duration-300 z-30">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white mb-6">Metadados do Artigo</h3>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Categoria</label>
+                                <select
+                                    className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
+                                    value={postData.category}
+                                    onChange={e => setPostData({ ...postData, category: e.target.value })}
+                                >
+                                    {categories.map(c => c !== 'Todos' && <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Tempo de Leitura</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
+                                    value={postData.readTime}
+                                    onChange={e => setPostData({ ...postData, readTime: e.target.value })}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Resumo</label>
+                                <textarea
+                                    className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors min-h-[120px] resize-none leading-relaxed"
+                                    value={postData.excerpt}
+                                    onChange={e => setPostData({ ...postData, excerpt: e.target.value })}
+                                    placeholder="Breve descrição para aparecer na lista..."
+                                />
+                            </div>
+
+                            <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800">
+                                <p className="text-[10px] text-neutral-400 leading-relaxed">
+                                    <AlertCircle size={12} className="inline mr-1" />
+                                    Dica: Use <strong>##</strong> para subtítulos, <strong>-</strong> para listas e <strong>&gt;</strong> para citações diretamente no texto.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {/* Metadata Sidebar */}
-            {metaOpen && (
-                <div className="fixed inset-y-0 right-0 w-80 bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 shadow-2xl p-6 z-50 animate-in slide-in-from-right">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Configurações</h3>
-                        <button onClick={() => setMetaOpen(false)} className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"><X size={18} /></button>
-                    </div>
-
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-300">Categoria</label>
-                            <select
-                                className="w-full p-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 rounded-lg outline-none text-neutral-900 dark:text-white focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors"
-                                value={postData.category}
-                                onChange={e => setPostData({ ...postData, category: e.target.value })}
-                            >
-                                {categories.map(cat => cat !== 'Todos' && <option key={cat} value={cat}>{cat}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-300">Tempo de Leitura</label>
-                            <input
-                                type="text"
-                                className="w-full p-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 rounded-lg outline-none text-neutral-900 dark:text-white focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors"
-                                value={postData.readTime}
-                                onChange={e => setPostData({ ...postData, readTime: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-300">Resumo (SEO)</label>
-                            <textarea
-                                className="w-full p-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 rounded-lg outline-none h-32 resize-none text-neutral-900 dark:text-white focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors"
-                                value={postData.excerpt}
-                                onChange={e => setPostData({ ...postData, excerpt: e.target.value })}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
