@@ -1,55 +1,69 @@
 [
-    {
-        "id": 1,
-        "date": "29 Jan, 2026",
-        "category": "Disciplina",
-        "readTime": "4 min",
-        "title": "A Arquitetura do Silêncio: Como a solidão molda o caráter",
-        "excerpt": "No mundo moderno, fugimos do silêncio como se fosse um inimigo. No entanto, é no vazio que as verdades mais cruas emergem.",
-        "content": [
-            "O silêncio não é apenas a ausência de som, é a presença de si mesmo. Para o homem que busca excelência, dominar a capacidade de estar sozinho sem distrações digitais é o primeiro passo para a verdadeira autonomia.",
-            "Muitas vezes preenchemos nossos dias com ruído — podcasts, notificações, música — porque temos medo do que o silêncio pode nos dizer. No entanto, os grandes estoicos já pregavam que a cidadela interior só é construída quando paramos de reagir ao mundo externo.",
-            "A solidão produtiva não é isolamento social, mas sim a capacidade de processar pensamentos sem a influência imediata de terceiros. Quando você desliga o celular e senta-se em uma sala vazia por 20 minutos, a sua mente começa a 'limpar os filtros'. As primeiras camadas são ansiedades triviais, mas abaixo delas residem as suas ambições mais puras.",
-            "Neste artigo, exploramos três exercícios práticos para implementar o silêncio produtivo na sua rotina matinal: a escrita matinal sem pauta, a caminhada sem dispositivos e a meditação de observação de impulsos."
-        ]
-    },
-    {
-        "id": 2,
-        "date": "28 Jan, 2026",
-        "category": "Filosofia",
-        "readTime": "3 min",
-        "title": "O Mito da Motivação vs. A Realidade do Sistema",
-        "excerpt": "Esperar pelo \"sentimento certo\" para agir é o erro que mantém a maioria dos homens na mediocridade.",
-        "content": [
-            "A motivação é um sentimento fugaz e não confiável. Se você só treina quando está motivado, você não é um atleta, é um entusiasta. O sistema, por outro lado, é o que te carrega quando a vontade falha.",
-            "Grandes homens não esperam o sol nascer para sentir vontade de trabalhar; eles trabalham porque é 06:00 e o cronograma exige. O compromisso com o processo é o que separa o amador do profissional.",
-            "Construa regras inegociáveis. Se a regra é ler 20 páginas por dia, não importa se você está cansado ou inspirado. O sistema ignora seus sentimentos temporários em favor do seu objetivo de longo prazo."
-        ]
-    },
-    {
-        "id": 3,
-        "date": "27 Jan, 2026",
-        "category": "Homens",
-        "readTime": "5 min",
-        "title": "O Ressurgimento da Masculinidade Clássica",
-        "excerpt": "Em tempos de papéis fluidos, revisitar os fundamentos da proteção, provisão e propósito se torna um ato revolucionário.",
-        "content": [
-            "Masculinidade não é sobre dominação, mas sobre competência. Ser capaz de proteger os seus e prover não apenas recursos, mas segurança emocional e direção.",
-            "A sociedade moderna tenta vilanizar a assertividade, confundindo-a com agressividade. O homem estoico sabe a diferença. A agressividade é descontrole; a assertividade é poder sob controle.",
-            "Cultivar a força física e mental não é vaidade, é dever. Um homem fraco não pode ser virtuoso, pois a virtude exige a capacidade de, podendo fazer o mal, escolher o bem."
-        ]
-    },
-    {
-        "id": 4,
-        "date": "26 Jan, 2026",
-        "category": "Tutoriais",
-        "readTime": "7 min",
-        "title": "Implementando um Segundo Cérebro (Zettelkasten) no Obsidian",
-        "excerpt": "Um guia prático para transformar notas dispersas em um sistema de conhecimento interconectado.",
-        "content": [
-            "A mente humana serve para ter ideias, não para armazená-las. Tentar lembrar de tudo é a receita para a ansiedade e esquecimento.",
-            "O método Zettelkasten propõe a criação de notas atômicas — uma ideia por nota — conectadas entre si. Imagine sua base de conhecimento não como um armário de arquivos (pastas), mas como uma rede neural (links).",
-            "Passo 1: Crie uma pasta 'Inbox'. Passo 2: Capture tudo sem julgar. Passo 3: Uma vez por dia, processe a Inbox, transformando rascunhos em Notas Permanentes e conectando-as a conceitos existentes."
-        ]
-    }
+  {
+    "id": 1770294813991,
+    "title": "OS monstros somos nos ",
+    "excerpt": "",
+    "category": "Documenta��o",
+    "readTime": "5 min",
+    "content": [
+      "defnrnrknfkenrkfnrgjberg",
+      "rferfgeger",
+      "er"
+    ],
+    "date": "05 de fev. de 2026",
+    "createdAt": "2026-02-05T12:33:33.991Z"
+  },
+  {
+    "id": 1,
+    "date": "29 Jan, 2026",
+    "category": "Disciplina",
+    "readTime": "4 min",
+    "title": "A Arquitetura do Silêncio: Como a solidão molda o caráter",
+    "excerpt": "No mundo moderno, fugimos do silêncio como se fosse um inimigo. No entanto, é no vazio que as verdades mais cruas emergem.",
+    "content": [
+      "O silêncio não é apenas a ausência de som, é a presença de si mesmo. Para o homem que busca excelência, dominar a capacidade de estar sozinho sem distrações digitais é o primeiro passo para a verdadeira autonomia.",
+      "Muitas vezes preenchemos nossos dias com ruído — podcasts, notificações, música — porque temos medo do que o silêncio pode nos dizer. No entanto, os grandes estoicos já pregavam que a cidadela interior só é construída quando paramos de reagir ao mundo externo.",
+      "A solidão produtiva não é isolamento social, mas sim a capacidade de processar pensamentos sem a influência imediata de terceiros. Quando você desliga o celular e senta-se em uma sala vazia por 20 minutos, a sua mente começa a 'limpar os filtros'. As primeiras camadas são ansiedades triviais, mas abaixo delas residem as suas ambições mais puras.",
+      "Neste artigo, exploramos três exercícios práticos para implementar o silêncio produtivo na sua rotina matinal: a escrita matinal sem pauta, a caminhada sem dispositivos e a meditação de observação de impulsos."
+    ]
+  },
+  {
+    "id": 2,
+    "date": "28 Jan, 2026",
+    "category": "Filosofia",
+    "readTime": "3 min",
+    "title": "O Mito da Motivação vs. A Realidade do Sistema",
+    "excerpt": "Esperar pelo \"sentimento certo\" para agir é o erro que mantém a maioria dos homens na mediocridade.",
+    "content": [
+      "A motivação é um sentimento fugaz e não confiável. Se você só treina quando está motivado, você não é um atleta, é um entusiasta. O sistema, por outro lado, é o que te carrega quando a vontade falha.",
+      "Grandes homens não esperam o sol nascer para sentir vontade de trabalhar; eles trabalham porque é 06:00 e o cronograma exige. O compromisso com o processo é o que separa o amador do profissional.",
+      "Construa regras inegociáveis. Se a regra é ler 20 páginas por dia, não importa se você está cansado ou inspirado. O sistema ignora seus sentimentos temporários em favor do seu objetivo de longo prazo."
+    ]
+  },
+  {
+    "id": 3,
+    "date": "27 Jan, 2026",
+    "category": "Homens",
+    "readTime": "5 min",
+    "title": "O Ressurgimento da Masculinidade Clássica",
+    "excerpt": "Em tempos de papéis fluidos, revisitar os fundamentos da proteção, provisão e propósito se torna um ato revolucionário.",
+    "content": [
+      "Masculinidade não é sobre dominação, mas sobre competência. Ser capaz de proteger os seus e prover não apenas recursos, mas segurança emocional e direção.",
+      "A sociedade moderna tenta vilanizar a assertividade, confundindo-a com agressividade. O homem estoico sabe a diferença. A agressividade é descontrole; a assertividade é poder sob controle.",
+      "Cultivar a força física e mental não é vaidade, é dever. Um homem fraco não pode ser virtuoso, pois a virtude exige a capacidade de, podendo fazer o mal, escolher o bem."
+    ]
+  },
+  {
+    "id": 4,
+    "date": "26 Jan, 2026",
+    "category": "Tutoriais",
+    "readTime": "7 min",
+    "title": "Implementando um Segundo Cérebro (Zettelkasten) no Obsidian",
+    "excerpt": "Um guia prático para transformar notas dispersas em um sistema de conhecimento interconectado.",
+    "content": [
+      "A mente humana serve para ter ideias, não para armazená-las. Tentar lembrar de tudo é a receita para a ansiedade e esquecimento.",
+      "O método Zettelkasten propõe a criação de notas atômicas — uma ideia por nota — conectadas entre si. Imagine sua base de conhecimento não como um armário de arquivos (pastas), mas como uma rede neural (links).",
+      "Passo 1: Crie uma pasta 'Inbox'. Passo 2: Capture tudo sem julgar. Passo 3: Uma vez por dia, processe a Inbox, transformando rascunhos em Notas Permanentes e conectando-as a conceitos existentes."
+    ]
+  }
 ]
