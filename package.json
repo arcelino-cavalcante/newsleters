@@ -4,17 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tinacms dev -c \"vite\"",
-    "dev:lite": "vite",
-    "build": "tinacms build && vite build",
+    "dev": "vite",
+    "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.1",
     "@tailwindcss/vite": "^4.1.18",
-    "@tinacms/auth": "^1.1.2",
-    "@tinacms/cli": "^2.1.5",
     "autoprefixer": "^10.4.23",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.563.0",
@@ -22,8 +19,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "styled-components": "^6.3.8",
-    "tailwindcss": "^4.1.18",
-    "tinacms": "^3.4.1"
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

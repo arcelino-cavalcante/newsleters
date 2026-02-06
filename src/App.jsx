@@ -223,7 +223,7 @@ const App = () => {
       )}
 
       {/* Settings Panel */}
-      {showSettings && readingPost && (
+      {!showAdmin && showSettings && readingPost && (
         <div className={`fixed top-20 right-6 z-50 p-6 border ${borderClass} ${isDarkMode ? 'bg-neutral-900 shadow-white/5' : 'bg-white shadow-xl'} animate-in fade-in zoom-in-95 duration-200 w-64 rounded-xl`}>
           <div className="space-y-6 text-xs font-sans font-bold uppercase tracking-widest">
             <div>
@@ -250,7 +250,7 @@ const App = () => {
       )}
 
       {/* Main Content */}
-      {(
+      {!showAdmin && (
         <main className={`max-w-7xl mx-auto px-6 py-12 transition-all duration-700 ${isFocusMode ? 'pt-24' : 'pt-12'}`}>
           {!readingPost ? (
             /* Post List */
@@ -462,7 +462,7 @@ const App = () => {
 
       {/* Floating Info / Footer */}
       {
-        !readingPost && (
+        !readingPost && !showAdmin && (
           <footer className={`py-12 text-center border-t ${borderClass} mt-20`}>
             <p className={`text-[10px] uppercase tracking-widest font-bold ${mutedText}`}>
               © 2026 MensLog • Estoicismo Moderno

@@ -60,12 +60,106 @@ export const postService = {
         }
     },
 
-    // Create/Update/Delete are now handled by TinaCMS directly via the /admin interface, 
-    // so we might not need these methods for the *app* logic anymore, 
-    // but we can keep them if we still wanted manual control, 
-    // though purely using Tina + GitHub API is safer.
-    // For now, we leave them as TODO or deprecated since Tina handles the "Write" part.
-    async createPost() { console.log("Use TinaCMS to create posts"); },
-    async updatePost() { console.log("Use TinaCMS to update posts"); },
-    async deletePost() { console.log("Use TinaCMS to delete posts"); }
+    // Create new post (Markdown)
+    async createPost(postData) {
+        if (!githubClient.isConfigured()) {
+            throw new Error("GitHub login required to create posts");
+        }
+
+        const octokit = githubClient.getClient();
+        const { owner, repo } = githubClient.getRepoInfo();
+
+        const slug = postData.slug || postData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '');
+        const filename = `${slug}.md`;
+        const path = `${POSTS_DIR}/${filename}`;
+
+        // Construct Markdown content
+        const markdown = this.generateMarkdown(postData);
+
+        // Encode to Base64
+        const contentEncoded = btoa(unescape(encodeURIComponent(markdown)));
+
+        await octokit.repos.createOrUpdateFileContents({
+            owner,
+            repo,
+            path,
+            message: `Create post: ${postData.title}`,
+            content: contentEncoded,
+        });
+
+        return postData.slug;
+    },
+
+    // Update existing post
+    async updatePost(id, postData) {
+        // ID in our new system is essentially the SHA, but for updates we rely on the slug/filename
+        // In a real-world scenario we should use the SHA to prevent conflicts, 
+        // but for this simple helper we will just overwrite based on the file path.
+        if (!githubClient.isConfigured()) {
+            throw new Error("GitHub login required to update posts");
+        }
+
+        const octokit = githubClient.getClient();
+        const { owner, repo } = githubClient.getRepoInfo();
+
+        const slug = postData.slug || postData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '');
+        const filename = `${slug}.md`;
+        const path = `${POSTS_DIR}/${filename}`;
+
+        // Get current SHA to allow update
+        let sha;
+        try {
+            const currentFile = await octokit.repos.getContent({
+                owner,
+                repo,
+                path
+            });
+            sha = currentFile.data.sha;
+        } catch (e) {
+            // File might not exist if slug changed, effectively a create
+        }
+
+        const markdown = this.generateMarkdown(postData);
+        const contentEncoded = btoa(unescape(encodeURIComponent(markdown)));
+
+        await octokit.repos.createOrUpdateFileContents({
+            owner,
+            repo,
+            path,
+            message: `Update post: ${postData.title}`,
+            content: contentEncoded,
+            sha: sha // Required for updates
+        });
+
+        return slug;
+    },
+
+    // Helper to generate Markdown string
+    generateMarkdown(post) {
+        const frontmatter = [
+            '---',
+            `title: "${post.title.replace(/"/g, '\\"')}"`,
+            `date: "${post.date || new Date().toISOString()}"`,
+            `category: "${post.category}"`,
+            `readTime: "${post.readTime}"`,
+            `excerpt: "${(post.excerpt || '').replace(/"/g, '\\"')}"`,
+            `coverImage: "${post.coverImage || ''}"`,
+            `status: "${post.status || 'published'}"`,
+            `tags: [${(post.tags || []).map(t => `"${t}"`).join(', ')}]`,
+            '---',
+            ''
+        ].join('\n');
+
+        // Handles both array of paragraphs (legacy block editor) and direct string (if we switch to raw md)
+        let body = '';
+        if (Array.isArray(post.content)) {
+            body = post.content.join('\n\n');
+        } else {
+            body = post.content || '';
+        }
+
+        return frontmatter + body;
+    },
+
+    async deletePost(id) { console.log("Delete not implemented yet for Markdown"); }
 };

@@ -244,35 +244,39 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-950 flex flex-col animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-950 flex flex-col animate-in fade-in duration-300 font-serif">
             {/* Hidden Inputs */}
             <input type="file" ref={imageInputRef} hidden accept="image/*" onChange={handleImageUpload} />
             <input type="file" ref={coverInputRef} hidden accept="image/*" onChange={handleCoverUpload} />
             <input type="file" ref={attachmentInputRef} hidden accept=".pdf,.doc,.docx,.zip,.txt,image/*" onChange={handleAttachmentUpload} />
 
             {/* Toolbar */}
-            <nav className="border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur px-6 py-3 flex justify-between items-center bg-white dark:bg-neutral-950 sticky top-0 z-20">
+            <nav className="border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur px-6 py-3 flex justify-between items-center sticky top-0 z-50">
                 <div className="flex items-center gap-4">
                     <button onClick={onClose} className="p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
                         <ArrowLeft size={20} />
                     </button>
-                    <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-800 mx-2" />
+                    <div className="hidden md:block w-px h-6 bg-neutral-200 dark:bg-neutral-800 mx-2" />
                     <div className="flex gap-1">
-                        <button onClick={() => formatText('bold')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Negrito"><Bold size={18} /></button>
-                        <button onClick={() => formatText('italic')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Itálico"><Italic size={18} /></button>
-                        <button onClick={() => insertText('[Texto](url)')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Link"><LinkIcon size={18} /></button>
-                        <button onClick={() => imageInputRef.current.click()} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded" title="Imagem"><ImageIcon size={18} /></button>
+                        <button onClick={() => formatText('bold')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors" title="Negrito"><Bold size={18} /></button>
+                        <button onClick={() => formatText('italic')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors" title="Itálico"><Italic size={18} /></button>
+                        <button onClick={() => insertText('[Texto](url)')} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors" title="Link"><LinkIcon size={18} /></button>
+                        <button onClick={() => imageInputRef.current.click()} className="p-2 text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors" title="Imagem"><ImageIcon size={18} /></button>
+                        <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-800 mx-1" />
+                        <button onClick={() => toggleBlockType(activeBlock, 'header')} className={`p-2 rounded transition-colors ${blocks[activeBlock]?.type === 'header' ? 'bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white' : 'text-neutral-500 hover:text-black dark:hover:text-white'}`} title="Título"><Type size={18} /></button>
+                        <button onClick={() => toggleBlockType(activeBlock, 'quote')} className={`p-2 rounded transition-colors ${blocks[activeBlock]?.type === 'quote' ? 'bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white' : 'text-neutral-500 hover:text-black dark:hover:text-white'}`} title="Citação"><Quote size={18} /></button>
+                        <button onClick={() => toggleBlockType(activeBlock, 'list')} className={`p-2 rounded transition-colors ${blocks[activeBlock]?.type === 'list' ? 'bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white' : 'text-neutral-500 hover:text-black dark:hover:text-white'}`} title="Lista"><List size={18} /></button>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button onClick={() => setMetaOpen(!metaOpen)} className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors ${metaOpen ? 'bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white' : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}>
-                        Metadados & Arquivos
+                    <button onClick={() => setMetaOpen(!metaOpen)} className={`px-4 py-2 text-xs font-sans font-bold uppercase tracking-widest rounded-lg transition-colors ${metaOpen ? 'bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white' : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}>
+                        Metadados
                     </button>
                     <button
                         onClick={handlePublish}
                         disabled={isPublishing}
-                        className="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-80 transition-opacity flex items-center gap-2"
+                        className="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-lg text-xs font-sans font-bold uppercase tracking-widest hover:opacity-80 transition-opacity flex items-center gap-2 shadow-sm"
                     >
                         {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                         {isPublishing ? 'Salvando...' : 'Publicar'}
@@ -280,22 +284,22 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                 </div>
             </nav>
 
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden bg-neutral-50/30 dark:bg-neutral-900/10">
                 {/* Main Editor Area */}
-                <div className="flex-1 overflow-y-auto px-6 py-12 md:px-20 md:py-16 scroll-smooth">
-                    <div className="max-w-[1200px] mx-auto min-h-[80vh]"> {/* WIDER CONTAINER */}
+                <div className="flex-1 overflow-y-auto px-4 py-12 md:px-0 md:py-16 scroll-smooth">
+                    <div className="max-w-3xl mx-auto min-h-[80vh] pb-32">
 
                         {/* Cover Image Section */}
                         <div
-                            className="group relative w-full h-48 md:h-80 bg-neutral-100 dark:bg-neutral-900 rounded-2xl mb-12 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-all border-2 border-dashed border-transparent hover:border-neutral-300 dark:hover:border-neutral-700"
+                            className="group relative w-full h-64 md:h-96 bg-neutral-100 dark:bg-neutral-900 rounded-xl mb-12 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-all shadow-sm"
                             onClick={() => coverInputRef.current.click()}
                         >
                             {postData.coverImage ? (
                                 <img src={postData.coverImage} alt="Cover" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="text-center text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                                    <ImageIcon size={48} className="mx-auto mb-2 opacity-50" />
-                                    <span className="text-xs font-bold uppercase tracking-widest">Adicionar Capa</span>
+                                    <ImageIcon size={48} className="mx-auto mb-2 opacity-30" />
+                                    <span className="text-xs font-sans font-bold uppercase tracking-widest opacity-50">Adicionar Capa</span>
                                 </div>
                             )}
                             {postData.coverImage && (
@@ -304,30 +308,35 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                                         e.stopPropagation();
                                         setPostData(prev => ({ ...prev, coverImage: '' }));
                                     }}
-                                    className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                    className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100 backdrop-blur-sm"
                                 >
                                     <Trash2 size={16} />
                                 </button>
                             )}
                         </div>
 
-                        <input
-                            type="text"
+                        {/* Title Input */}
+                        <textarea
                             placeholder="Título do Artigo"
-                            className="w-full text-5xl md:text-7xl font-black bg-transparent border-none outline-none placeholder:text-neutral-200 dark:placeholder:text-neutral-800 mb-8 text-neutral-900 dark:text-white"
+                            className="w-full text-5xl md:text-6xl font-black bg-transparent border-none outline-none placeholder:text-neutral-300 dark:placeholder:text-neutral-700 mb-8 text-neutral-900 dark:text-white resize-none leading-tight"
                             value={postData.title}
-                            onChange={e => setPostData({ ...postData, title: e.target.value })}
+                            onChange={e => {
+                                setPostData({ ...postData, title: e.target.value });
+                                e.target.style.height = 'auto';
+                                e.target.style.height = e.target.scrollHeight + 'px';
+                            }}
+                            rows={1}
                             autoFocus
+                            style={{ overflow: 'hidden' }}
                         />
 
-                        <div className="space-y-4">
+                        {/* Blocks */}
+                        <div className="space-y-2">
                             {blocks.map((block, index) => (
                                 <div key={index} className="group relative flex items-start -ml-12 pl-12">
-                                    {/* Trigger Actions */}
-                                    <div className="absolute left-0 top-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                        <button onClick={() => toggleBlockType(index, 'header')} className={`p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 ${block.type === 'header' ? 'text-black dark:text-white' : 'text-neutral-400'}`} title="Título"><Type size={16} /></button>
-                                        <button onClick={() => toggleBlockType(index, 'quote')} className={`p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 ${block.type === 'quote' ? 'text-black dark:text-white' : 'text-neutral-400'}`} title="Citação"><Quote size={16} /></button>
-                                        <button onClick={() => toggleBlockType(index, 'list')} className={`p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 ${block.type === 'list' ? 'text-black dark:text-white' : 'text-neutral-400'}`} title="Lista"><List size={16} /></button>
+                                    {/* Quick Actions */}
+                                    <div className="absolute left-2 top-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
+                                        <button onClick={() => toggleBlockType(index, 'paragraph')} className="p-1.5 text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-400"><Type size={14} /></button>
                                     </div>
 
                                     <textarea
@@ -341,7 +350,7 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                                         }}
                                         onKeyDown={(e) => handleKeyDown(e, index)}
                                         placeholder={getBlockPlaceholder(block.type)}
-                                        className={`w-full bg-transparent border-none outline-none resize-none overflow-hidden placeholder:text-neutral-200 dark:placeholder:text-neutral-800 ${getBlockClass(block.type)}`}
+                                        className={`w-full bg-transparent border-none outline-none resize-none overflow-hidden placeholder:text-neutral-300 dark:placeholder:text-neutral-700 ${getBlockClass(block.type)}`}
                                         rows={1}
                                     />
                                 </div>
@@ -349,38 +358,43 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                         </div>
 
                         <div
-                            className="mt-8 py-8 border-t border-dashed border-neutral-200 dark:border-neutral-800 text-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 cursor-pointer transition-colors"
+                            className="mt-12 py-12 border-t border-dashed border-neutral-200 dark:border-neutral-800 text-center text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-400 cursor-pointer transition-colors"
                             onClick={() => setBlocks([...blocks, { type: 'paragraph', content: '' }])}
                         >
-                            <Plus className="mx-auto mb-2" />
-                            <span className="text-xs font-bold uppercase tracking-widest">Adicionar Novo Bloco</span>
+                            <Plus className="mx-auto mb-2 opacity-50" />
+                            <span className="text-[10px] font-sans font-bold uppercase tracking-widest">Novo Parágrafo</span>
                         </div>
                     </div>
                 </div>
 
+                {/* Sidebar has correct closing tag now in full file context if I assume... wait, I need to match the previous sidebar code or assume correct replacement range. 
+                   The previous tool call failed on range, so I must replace exactly from line 246 to end of return statement...
+                   Actually, I will replace the main render method.
+                */ }
+
                 {/* Sidebar Metadata */}
                 {metaOpen && (
-                    <div className="w-96 border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 overflow-y-auto animate-in slide-in-from-right duration-300 z-30 flex flex-col gap-8">
+                    <div className="w-80 border-l border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-6 overflow-y-auto animate-in slide-in-from-right duration-300 z-30 flex flex-col gap-8 shadow-2xl">
                         <div>
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Metadados</h3>
+                                <h3 className="text-xs font-sans font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Detalhes</h3>
                                 <button onClick={() => setMetaOpen(false)} className="md:hidden text-neutral-500"><X size={18} /></button>
                             </div>
 
-                            <div className="space-y-6">
+                            <div className="space-y-6 font-sans">
                                 {/* Status Toggle */}
                                 <div>
                                     <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Status</label>
-                                    <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg">
+                                    <div className="flex bg-neutral-100 dark:bg-neutral-900 p-1 rounded-lg">
                                         <button
                                             onClick={() => setPostData({ ...postData, status: 'draft' })}
-                                            className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded transition-all ${postData.status === 'draft' ? 'bg-white dark:bg-neutral-700 shadow text-black dark:text-white' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                            className={`flex-1 py-1.5 text-xs font-bold uppercase tracking-widest rounded transition-all ${postData.status === 'draft' ? 'bg-white dark:bg-neutral-800 shadow-sm text-black dark:text-white' : 'text-neutral-400 hover:text-neutral-900'}`}
                                         >
                                             Rascunho
                                         </button>
                                         <button
                                             onClick={() => setPostData({ ...postData, status: 'published' })}
-                                            className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded transition-all ${postData.status === 'published' ? 'bg-green-500 text-white shadow' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                            className={`flex-1 py-1.5 text-xs font-bold uppercase tracking-widest rounded transition-all ${postData.status === 'published' ? 'bg-green-500 text-white shadow-sm' : 'text-neutral-400 hover:text-neutral-900'}`}
                                         >
                                             Publicado
                                         </button>
@@ -388,21 +402,21 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">URL Slug</label>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Slug (URL)</label>
                                     <input
                                         type="text"
-                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm font-mono text-neutral-500 focus:text-black dark:focus:text-white focus:border-black dark:focus:border-white transition-colors"
+                                        className="w-full p-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-xs font-mono text-neutral-600 focus:border-neutral-400 transition-colors"
                                         value={postData.slug}
                                         onChange={e => setPostData({ ...postData, slug: e.target.value })}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Tags (separadas por vírgula)</label>
+                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Tags</label>
                                     <input
                                         type="text"
-                                        placeholder="ex: react, tutorial, web"
-                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
+                                        placeholder="separadas, por, virgula"
+                                        className="w-full p-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-neutral-400 transition-colors"
                                         value={postData.tags?.join(', ') || ''}
                                         onChange={e => setPostData({ ...postData, tags: e.target.value.split(',').map(t => t.trim()) })}
                                     />
@@ -411,7 +425,7 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                                 <div>
                                     <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Categoria</label>
                                     <select
-                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
+                                        className="w-full p-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-neutral-400 transition-colors appearance-none"
                                         value={postData.category}
                                         onChange={e => setPostData({ ...postData, category: e.target.value })}
                                     >
@@ -420,44 +434,33 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Tempo de Leitura</label>
-                                    <input
-                                        type="text"
-                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors"
-                                        value={postData.readTime}
-                                        onChange={e => setPostData({ ...postData, readTime: e.target.value })}
-                                    />
-                                </div>
-
-                                <div>
                                     <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-500 dark:text-neutral-400">Resumo</label>
                                     <textarea
-                                        className="w-full p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-black dark:focus:border-white transition-colors min-h-[120px] resize-none leading-relaxed"
+                                        className="w-full p-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-sm focus:border-neutral-400 transition-colors min-h-[100px] resize-none leading-relaxed"
                                         value={postData.excerpt}
                                         onChange={e => setPostData({ ...postData, excerpt: e.target.value })}
-                                        placeholder="Breve descrição..."
+                                        placeholder="Breve descrição para SEO..."
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Attachments Section */}
-                        <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-white mb-6">Arquivos e Downloads</h3>
+                        <div className="border-t border-neutral-200 dark:border-neutral-800 pt-6">
+                            <h3 className="text-[10px] font-sans font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-4">Arquivos</h3>
 
-                            <div className="space-y-3 mb-4">
+                            <div className="space-y-2 mb-4">
                                 {postData.attachments.map((file, i) => (
-                                    <div key={i} className="flex items-center gap-3 p-3 bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-lg group">
-                                        <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-500">
-                                            <FileText size={16} />
+                                    <div key={i} className="flex items-center gap-3 p-2 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg group">
+                                        <div className="p-1.5 bg-white dark:bg-neutral-800 rounded text-neutral-500 border border-neutral-200 dark:border-neutral-700">
+                                            <FileText size={14} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="text-xs font-bold truncate text-neutral-900 dark:text-white">{file.name}</div>
-                                            <div className="text-[10px] text-neutral-400 truncate">{file.url}</div>
                                         </div>
                                         <button
                                             onClick={() => setPostData(prev => ({ ...prev, attachments: prev.attachments.filter((_, idx) => idx !== i) }))}
-                                            className="p-2 text-neutral-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="p-1.5 text-neutral-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
                                             <Trash2 size={14} />
                                         </button>
@@ -468,10 +471,10 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                             <button
                                 onClick={() => attachmentInputRef.current.click()}
                                 disabled={isUploading}
-                                className="w-full py-3 border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-lg text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-400 dark:hover:border-neutral-600 transition-all flex items-center justify-center gap-2"
+                                className="w-full py-2.5 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-lg text-[10px] font-bold uppercase tracking-widest text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-400 dark:hover:border-neutral-600 transition-all flex items-center justify-center gap-2 hover:bg-neutral-50 dark:hover:bg-neutral-900"
                             >
-                                {isUploading ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
-                                Adicionar Arquivo
+                                {isUploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                                Upload
                             </button>
                         </div>
                     </div>
