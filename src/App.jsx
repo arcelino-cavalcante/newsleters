@@ -7,7 +7,7 @@ import {
 import { githubClient } from './services/githubClient';
 import { categoryService } from './services/categoryService';
 import { settingsService } from './services/settingsService';
-import AdminDashboard from './components/AdminDashboard';
+// AdminDashboard removed in favor of TinaCMS
 import { postService } from './services/postService';
 
 const App = () => {
@@ -26,36 +26,6 @@ const App = () => {
   const [progress, setProgress] = useState(0);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [hasAdminAccess, setHasAdminAccess] = useState(false);
-
-  // Check login status on load and whenever admin closes
-  useEffect(() => {
-    setHasAdminAccess(githubClient.isConfigured());
-  }, [showAdmin]);
-
-  // Simple Routing: Check for ?admin or #admin
-  useEffect(() => {
-    const checkAdminRoute = () => {
-      const isAdmin = window.location.hash === '#admin' || window.location.search.includes('admin');
-      if (isAdmin) setShowAdmin(true);
-    };
-
-    checkAdminRoute();
-    window.addEventListener('hashchange', checkAdminRoute);
-    return () => window.removeEventListener('hashchange', checkAdminRoute);
-  }, []);
-
-  // Sync route when admin closes
-  useEffect(() => {
-    if (!showAdmin) {
-      // Optional: Clean URL
-      if (window.location.hash === '#admin') {
-        history.replaceState(null, null, ' ');
-      }
-    }
-  }, [showAdmin]);
-
 
   // Fetch posts and categories on load
   useEffect(() => {
@@ -65,6 +35,8 @@ const App = () => {
       const publicPosts = remotePosts.filter(p => p.status !== 'draft');
       setDbPosts(publicPosts);
 
+      // Categories might need to be fetched differently if we want dynamic ones from markdown
+      // For now, we keep the service but it might return static fallback
       const remoteCategories = await categoryService.getAllCategories();
       const visibleCategories = remoteCategories
         .filter(c => c.visible)
@@ -76,7 +48,7 @@ const App = () => {
       if (settings) setSiteConfig(settings);
     };
     fetchData();
-  }, []); // Refresh when admin closes (in case categories changed)
+  }, []);
 
   // Filter posts based on category
   const filteredPosts = currentCategory === 'Todos'
@@ -178,11 +150,8 @@ const App = () => {
   return (
     <div className={`min-h-screen transition-colors duration-500 ${themeClasses} ${fontFamily === 'serif' ? 'font-serif' : 'font-sans'}`}>
 
-      {/* Tools */}
-      {showAdmin && <AdminDashboard isDarkMode={isDarkMode} toggleTheme={toggleTheme} onClose={() => setShowAdmin(false)} />}
-
       {/* Reading Progress Bar */}
-      {!showAdmin && readingPost && (
+      {readingPost && (
         <div className="fixed top-0 left-0 w-full h-1 z-[60] bg-transparent">
           <div
             className={`h-full transition-all duration-150 ${isDarkMode ? 'bg-white' : 'bg-black'}`}
@@ -192,7 +161,7 @@ const App = () => {
       )}
 
       {/* Navigation */}
-      {!showAdmin && (
+      {(
         <nav className={`border-b ${borderClass} sticky top-0 z-50 backdrop-blur-md transition-transform duration-500 ${isDarkMode ? 'bg-neutral-950/90' : 'bg-white/90'} ${isFocusMode && readingPost ? '-translate-y-full' : 'translate-y-0'}`}>
           <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
             <h1
@@ -203,14 +172,14 @@ const App = () => {
             </h1>
 
             <div className="flex items-center space-x-2 md:space-x-4">
-              {hasAdminAccess && (
-                <button
-                  onClick={() => setShowAdmin(true)}
-                  className={`hidden md:block text-[10px] font-bold uppercase tracking-widest px-3 py-1 border ${borderClass} rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 opacity-50 hover:opacity-100 transition-all`}
-                >
-                  ADMIN
-                </button>
-              )}
+
+              <a
+                href="/admin/index.html"
+                target="_blank"
+                className={`hidden md:block text-[10px] font-bold uppercase tracking-widest px-3 py-1 border ${borderClass} rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 opacity-50 hover:opacity-100 transition-all`}
+              >
+                ADMIN
+              </a>
 
               <button onClick={toggleTheme} className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
                 {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
@@ -254,7 +223,7 @@ const App = () => {
       )}
 
       {/* Settings Panel */}
-      {!showAdmin && showSettings && readingPost && (
+      {showSettings && readingPost && (
         <div className={`fixed top-20 right-6 z-50 p-6 border ${borderClass} ${isDarkMode ? 'bg-neutral-900 shadow-white/5' : 'bg-white shadow-xl'} animate-in fade-in zoom-in-95 duration-200 w-64 rounded-xl`}>
           <div className="space-y-6 text-xs font-sans font-bold uppercase tracking-widest">
             <div>
@@ -281,7 +250,7 @@ const App = () => {
       )}
 
       {/* Main Content */}
-      {!showAdmin && (
+      {(
         <main className={`max-w-7xl mx-auto px-6 py-12 transition-all duration-700 ${isFocusMode ? 'pt-24' : 'pt-12'}`}>
           {!readingPost ? (
             /* Post List */
@@ -493,7 +462,7 @@ const App = () => {
 
       {/* Floating Info / Footer */}
       {
-        !readingPost && !showAdmin && (
+        !readingPost && (
           <footer className={`py-12 text-center border-t ${borderClass} mt-20`}>
             <p className={`text-[10px] uppercase tracking-widest font-bold ${mutedText}`}>
               © 2026 MensLog • Estoicismo Moderno
