@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:tina": "tinacms dev -c \"vite\"",
+    "dev": "tinacms dev -c \"vite\"",
+    "dev:lite": "vite",
     "build": "tinacms build && vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
