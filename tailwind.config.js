@@ -6,7 +6,12 @@ export default {
     ],
     darkMode: 'class', // Critical: Helper to toggle dark mode manually
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                sans: ['Inter', 'system-ui', 'sans-serif'],
+                serif: ['Lora', 'Georgia', 'serif'],
+            },
+        },
     },
     plugins: [],
 }
