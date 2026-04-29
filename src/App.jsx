@@ -15,6 +15,11 @@ import Login from './components/Login';
 import AdminDashboard from './components/AdminDashboard';
 import AdBlock from './components/AdBlock';
 import { postService } from './services/postService';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-python';
 
 const AdminRoute = ({ user, children }) => {
   if (user === undefined) return null; // Wait for auth state to initialize
@@ -65,6 +70,7 @@ const App = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [allPosts, setAllPosts] = useState([]);
+  const [activeSection, setActiveSection] = useState('');
 
   // Monitor Auth State
   useEffect(() => {
@@ -183,6 +189,28 @@ const App = () => {
     };
     window.addEventListener('scroll', updateProgress);
     return () => window.removeEventListener('scroll', updateProgress);
+  }, [readingPost]);
+
+  useEffect(() => {
+    if (readingPost) {
+      setTimeout(() => {
+        Prism.highlightAll();
+        
+        if (readingPost.category === 'Documentação') {
+          const observer = new IntersectionObserver((entries) => {
+            const visibleSections = entries.filter(entry => entry.isIntersecting);
+            if (visibleSections.length > 0) {
+              setActiveSection(visibleSections[0].target.id);
+            }
+          }, { rootMargin: '-100px 0px -60% 0px' });
+
+          const headers = document.querySelectorAll('h2[id^="section-"], h3[id^="section-"]');
+          headers.forEach(header => observer.observe(header));
+
+          return () => observer.disconnect();
+        }
+      }, 100);
+    }
   }, [readingPost]);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
@@ -457,7 +485,7 @@ const App = () => {
                             <li key={i} className={header.level === 3 ? 'pl-4 border-l-2 border-neutral-200 dark:border-neutral-800' : ''}>
                               <a
                                 href={`#${header.id}`}
-                                className={`text-xs font-medium hover:underline opacity-60 hover:opacity-100 transition-opacity ${isDarkMode ? 'text-neutral-300' : 'text-neutral-700'}`}
+                                className={`text-xs font-medium hover:underline transition-all duration-300 ${activeSection === header.id ? 'opacity-100 font-bold text-neutral-900 dark:text-white' : `opacity-60 hover:opacity-100 ${isDarkMode ? 'text-neutral-300' : 'text-neutral-700'}`}`}
                               >
                                 {header.text}
                               </a>
@@ -550,8 +578,8 @@ const App = () => {
                                 >
                                   <Copy size={14} />
                                 </button>
-                                <pre className="bg-[#1e1e1e] text-[#d4d4d4] p-5 rounded-xl overflow-x-auto font-mono text-sm shadow-lg border border-neutral-800">
-                                  <code>{codeContent}</code>
+                                <pre className="rounded-xl overflow-x-auto text-sm shadow-lg border border-neutral-800 !bg-[#1d1f21] !p-5 !m-0">
+                                  <code className="language-javascript">{codeContent}</code>
                                 </pre>
                               </div>
                             );
