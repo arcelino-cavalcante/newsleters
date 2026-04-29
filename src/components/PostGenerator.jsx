@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Copy, Plus, Trash, Eye, Code } from 'lucide-react';
 import { categories } from '../data/posts';
+import { useModal } from './ModalProvider';
 
 const PostGenerator = ({ onClose }) => {
+    const { toast } = useModal();
     const [postData, setPostData] = useState({
         id: Date.now(),
         date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }),
@@ -32,7 +34,7 @@ const PostGenerator = ({ onClose }) => {
     const generateCode = () => {
         const code = JSON.stringify(postData, null, 4);
         navigator.clipboard.writeText(code + ',');
-        alert('Código copiado! Cole no arquivo src/data/posts.js');
+        toast('Código copiado!', 'success');
     };
 
     return (

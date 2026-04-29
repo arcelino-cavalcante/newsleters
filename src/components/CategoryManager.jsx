@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Eye, EyeOff, Check, X, Loader2, AlertTriangle } from 'lucide-react';
 import { categoryService } from '../services/categoryService';
+import { useModal } from './ModalProvider';
 
 const CategoryManager = () => {
+    const { toast, confirm } = useModal();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newName, setNewName] = useState('');
@@ -32,7 +34,7 @@ const CategoryManager = () => {
             setNewName('');
             loadCategories();
         } catch (error) {
-            alert('Erro ao criar: ' + error.message);
+            toast('Erro ao criar: ' + error.message, 'error');
         }
     };
 
@@ -41,17 +43,23 @@ const CategoryManager = () => {
             await categoryService.updateCategory(category.id, { visible: !category.visible });
             loadCategories();
         } catch (error) {
-            alert('Erro ao atualizar: ' + error.message);
+            toast('Erro ao atualizar: ' + error.message, 'error');
         }
     };
 
     const handleDelete = async (category) => {
-        if (window.confirm(`ATENÇÃO: Excluir a categoria "${category.name}" moverá todos os seus posts para "Sem Categoria". Deseja continuar?`)) {
+        const confirmed = await confirm(`Excluir a categoria "${category.name}" moverá todos os seus posts para "Sem Categoria". Deseja continuar?`, {
+            title: 'Excluir Categoria',
+            type: 'danger',
+            confirmText: 'Excluir'
+        });
+        if (confirmed) {
             try {
                 await categoryService.deleteCategory(category.id, category.name);
                 loadCategories();
+                toast('Categoria excluída', 'success');
             } catch (error) {
-                alert('Erro ao excluir: ' + error.message);
+                toast('Erro ao excluir: ' + error.message, 'error');
             }
         }
     };
@@ -67,7 +75,7 @@ const CategoryManager = () => {
             setEditingId(null);
             loadCategories();
         } catch (error) {
-            alert('Erro ao atualizar: ' + error.message);
+            toast('Erro ao atualizar: ' + error.message, 'error');
         }
     };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Code, Loader2, Play, Pause } from 'lucide-react';
 import { adService } from '../services/adService';
+import { useModal } from './ModalProvider';
 
 const PLACEMENTS = {
     header: "Cabeçalho Global (<head>)",
@@ -10,6 +11,7 @@ const PLACEMENTS = {
 };
 
 const AdManager = () => {
+    const { toast, confirm } = useModal();
     const [ads, setAds] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -48,9 +50,15 @@ const AdManager = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Tem certeza que deseja excluir este bloco de anúncio?")) {
+        const confirmed = await confirm('Tem certeza que deseja excluir este bloco de anúncio?', {
+            title: 'Excluir Código',
+            type: 'danger',
+            confirmText: 'Excluir'
+        });
+        if (confirmed) {
             await adService.deleteAd(id);
             setAds(ads.filter(a => a.id !== id));
+            toast('Código excluído', 'success');
         }
     };
 
@@ -73,7 +81,7 @@ const AdManager = () => {
             }
             setShowForm(false);
         } catch (error) {
-            alert("Erro ao salvar: " + error.message);
+            toast("Erro ao salvar: " + error.message, 'error');
         } finally {
             setIsSaving(false);
         }

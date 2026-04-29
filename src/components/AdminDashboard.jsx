@@ -6,10 +6,12 @@ import ModernEditor from './ModernEditor';
 import CategoryManager from './CategoryManager';
 import SettingsManager from './SettingsManager';
 import AdManager from './AdManager';
+import { useModal } from './ModalProvider';
 // Removed Firebase
 
 const AdminDashboard = ({ user }) => {
     const navigate = useNavigate();
+    const { toast, confirm } = useModal();
     const [posts, setPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [editingPost, setEditingPost] = useState(null);
@@ -29,12 +31,18 @@ const AdminDashboard = ({ user }) => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Tem certeza que deseja excluir este artigo? Esta ação não pode ser desfeita.')) {
+        const confirmed = await confirm('Tem certeza que deseja excluir este artigo? Esta ação não pode ser desfeita.', {
+            title: 'Excluir Artigo',
+            type: 'danger',
+            confirmText: 'Excluir'
+        });
+        if (confirmed) {
             try {
                 await postService.deletePost(id);
                 setPosts(posts.filter(p => p.id !== id));
+                toast('Artigo excluído com sucesso', 'success');
             } catch (error) {
-                alert('Erro ao excluir: ' + error.message);
+                toast('Erro ao excluir: ' + error.message, 'error');
             }
         }
     };

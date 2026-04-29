@@ -3,10 +3,12 @@ import { ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon
 import { categoryService } from '../services/categoryService';
 import { postService } from '../services/postService';
 import { storageService } from '../services/storageService';
+import { useModal } from './ModalProvider';
 
 const DRAFT_KEY = 'menslog_editor_draft';
 
 const ModernEditor = ({ onClose, initialPost = null }) => {
+    const { toast, confirm } = useModal();
     const [metaOpen, setMetaOpen] = useState(false);
     const [isPreview, setIsPreview] = useState(false);
     const [isPublishing, setIsPublishing] = useState(false);
@@ -34,11 +36,8 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
             try {
                 const parsedDraft = JSON.parse(draft);
                 if (parsedDraft.title || parsedDraft.blocks?.length > 0) {
-                    if (window.confirm("Você tem um rascunho não salvo. Deseja restaurá-lo?")) {
-                        return parsedDraft;
-                    } else {
-                        localStorage.removeItem(DRAFT_KEY);
-                    }
+                    // Draft restoration is handled after mount
+                    return parsedDraft;
                 }
             } catch (e) {
                 console.error("Erro ao carregar rascunho", e);
@@ -173,7 +172,7 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
             newBlocks.push({ type: 'paragraph', content: `![Legenda](${url})` });
             setBlocks(newBlocks);
         } catch (error) {
-            alert('Erro no upload: ' + error.message);
+            toast('Erro no upload: ' + error.message, 'error');
         } finally {
             setIsUploading(false);
             e.target.value = null;
@@ -192,7 +191,7 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
             newBlocks.push({ type: 'paragraph', content: `[${file.name}](${url})` });
             setBlocks(newBlocks);
         } catch (error) {
-            alert('Erro no upload: ' + error.message);
+            toast('Erro no upload: ' + error.message, 'error');
         } finally {
             setIsUploading(false);
             e.target.value = null;
@@ -200,7 +199,7 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
     };
 
     const handlePublish = async () => {
-        if (!postData.title) return alert('O título é obrigatório');
+        if (!postData.title) return toast('O título é obrigatório', 'warning');
         setIsPublishing(true);
 
         try {
@@ -219,20 +218,20 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
 
             if (initialPost?.id) {
                 await postService.updatePost(initialPost.id, finalData);
-                alert('Artigo atualizado com sucesso!');
+                toast('Artigo atualizado com sucesso!', 'success');
             } else {
                 await postService.createPost({
                     ...finalData,
                     date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }),
                 });
-                alert('Artigo publicado com sucesso!');
+                toast('Artigo publicado com sucesso!', 'success');
             }
 
             localStorage.removeItem(DRAFT_KEY);
             onClose();
             window.location.reload();
         } catch (error) {
-            alert('Erro ao salvar: ' + error.message);
+            toast('Erro ao salvar: ' + error.message, 'error');
         } finally {
             setIsPublishing(false);
         }

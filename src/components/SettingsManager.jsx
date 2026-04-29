@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Loader2, Check } from 'lucide-react';
 import { settingsService } from '../services/settingsService';
+import { useModal } from './ModalProvider';
 
 const SettingsManager = () => {
+    const { toast } = useModal();
     const [settings, setSettings] = useState({
         siteTitle: '',
         siteSubtitle: ''
@@ -35,7 +37,7 @@ const SettingsManager = () => {
             // though App.jsx should handle it if we trigger a re-fetch or use context.
             // For now, simple alert or feedback is enough.
         } catch (error) {
-            alert('Erro ao salvar: ' + error.message);
+            toast('Erro ao salvar: ' + error.message, 'error');
         } finally {
             setSaving(false);
         }
