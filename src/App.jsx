@@ -213,7 +213,13 @@ const App = () => {
     }
   }, [readingPost]);
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  const toggleTheme = () => {
+    document.documentElement.classList.add('theme-transitioning');
+    setIsDarkMode(!isDarkMode);
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    }, 800);
+  };
 
   useEffect(() => {
     if (isDarkMode) {

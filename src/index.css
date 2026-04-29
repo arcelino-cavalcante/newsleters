@@ -11,3 +11,12 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Super smooth global theme transition */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *:before,
+.theme-transitioning *:after {
+  transition: background-color 800ms ease-in-out, color 800ms ease-in-out, border-color 800ms ease-in-out !important;
+  transition-delay: 0ms !important;
+}
