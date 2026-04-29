@@ -206,8 +206,13 @@ const App = () => {
   // Helper to extract headers for TOC
   const getTableOfContents = (content) => {
     return content
-      .filter(line => line.startsWith('## '))
-      .map(line => line.replace('## ', ''));
+      .map((line, index) => {
+        if (typeof line !== 'string') return null;
+        if (line.startsWith('### ')) return { level: 3, text: line.replace('### ', ''), id: `section-${index}` };
+        if (line.startsWith('## ')) return { level: 2, text: line.replace('## ', ''), id: `section-${index}` };
+        return null;
+      })
+      .filter(Boolean);
   };
 
   const isDocs = readingPost?.category === 'Documentação';
@@ -449,12 +454,12 @@ const App = () => {
                         <p className={`mb-4 text-[10px] uppercase tracking-widest font-bold ${mutedText}`}>Nesta página</p>
                         <ul className="space-y-3">
                           {tableOfContents.map((header, i) => (
-                            <li key={i}>
+                            <li key={i} className={header.level === 3 ? 'pl-4 border-l-2 border-neutral-200 dark:border-neutral-800' : ''}>
                               <a
-                                href={`#section-${i}`}
+                                href={`#${header.id}`}
                                 className={`text-xs font-medium hover:underline opacity-60 hover:opacity-100 transition-opacity ${isDarkMode ? 'text-neutral-300' : 'text-neutral-700'}`}
                               >
-                                {header}
+                                {header.text}
                               </a>
                             </li>
                           ))}
@@ -500,18 +505,55 @@ const App = () => {
                         }}
                       >
                         {readingPost.content.map((paragraph, index) => {
-                          // Check if paragraph is a header
+                          // Header (H2)
                           if (paragraph.startsWith('## ')) {
                             const headerText = paragraph.replace('## ', '');
-                            const headerId = `section-${tableOfContents.indexOf(headerText)}`;
                             return (
                               <h2
                                 key={index}
-                                id={headerId}
+                                id={`section-${index}`}
                                 className="text-2xl font-bold mt-12 mb-6 tracking-tight scroll-mt-32"
                               >
                                 {headerText}
                               </h2>
+                            );
+                          }
+
+                          // Subheader (H3)
+                          if (paragraph.startsWith('### ')) {
+                            const headerText = paragraph.replace('### ', '');
+                            return (
+                              <h3
+                                key={index}
+                                id={`section-${index}`}
+                                className="text-xl font-bold mt-8 mb-4 tracking-tight scroll-mt-32 text-neutral-800 dark:text-neutral-200"
+                              >
+                                {headerText}
+                              </h3>
+                            );
+                          }
+
+                          // Code Block Rendering
+                          if (paragraph.startsWith('```') && paragraph.endsWith('```')) {
+                            const match = paragraph.match(/^```.*\n([\s\S]*)\n```$/);
+                            const codeContent = match ? match[1] : paragraph.replace(/```/g, '').trim();
+                            
+                            return (
+                              <div key={index} className="relative group my-8">
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(codeContent);
+                                    toast('Código copiado!', 'success');
+                                  }}
+                                  className="absolute top-3 right-3 p-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-md transition-all opacity-0 group-hover:opacity-100 active:scale-95"
+                                  title="Copiar código"
+                                >
+                                  <Copy size={14} />
+                                </button>
+                                <pre className="bg-[#1e1e1e] text-[#d4d4d4] p-5 rounded-xl overflow-x-auto font-mono text-sm shadow-lg border border-neutral-800">
+                                  <code>{codeContent}</code>
+                                </pre>
+                              </div>
                             );
                           }
 

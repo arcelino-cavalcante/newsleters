@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon, Loader2, Quote, List, Eye, Edit3, Settings } from 'lucide-react';
+import { ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon, Loader2, Quote, List, Eye, Edit3, Settings, Code } from 'lucide-react';
 import { categoryService } from '../services/categoryService';
 import { postService } from '../services/postService';
 import { storageService } from '../services/storageService';
@@ -66,6 +66,12 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         if (initState.blocks) return initState.blocks; // From draft
         if (initState.content && initState.content.length > 0) {
             return initState.content.map(line => {
+                if (line.startsWith('```') && line.endsWith('```')) {
+                    // Extract code without the backticks. Allow optional lang tag on first line.
+                    const match = line.match(/^```.*\n([\s\S]*)\n```$/);
+                    return { type: 'code', content: match ? match[1] : line.replace(/```/g, '').trim() };
+                }
+                if (line.startsWith('### ')) return { type: 'subheader', content: line.replace('### ', '') };
                 if (line.startsWith('## ')) return { type: 'header', content: line.replace('## ', '') };
                 if (line.startsWith('> ')) return { type: 'quote', content: line.replace('> ', '') };
                 if (line.startsWith('- ')) return { type: 'list', content: line.replace('- ', '') };
@@ -133,10 +139,10 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
         }
     };
 
-    // Cycle block types: paragraph -> header -> quote -> list -> paragraph
+    // Cycle block types: paragraph -> header -> subheader -> quote -> list -> code -> paragraph
     const toggleBlockType = (index) => {
         const newBlocks = [...blocks];
-        const types = ['paragraph', 'header', 'quote', 'list'];
+        const types = ['paragraph', 'header', 'subheader', 'quote', 'list', 'code'];
         const currentIdx = types.indexOf(newBlocks[index].type);
         newBlocks[index].type = types[(currentIdx + 1) % types.length];
         setBlocks(newBlocks);
@@ -145,8 +151,10 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
     const getBlockIcon = (type) => {
         switch(type) {
             case 'header': return <Type size={16} />;
+            case 'subheader': return <Type size={14} className="opacity-70" />;
             case 'quote': return <Quote size={16} />;
             case 'list': return <List size={16} />;
+            case 'code': return <Code size={16} />;
             default: return <Layout size={16} />;
         }
     };
@@ -154,8 +162,10 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
     const getBlockClass = (type) => {
         switch(type) {
             case 'header': return 'text-2xl md:text-3xl font-bold mt-6 md:mt-8 mb-3 md:mb-4 text-neutral-900 dark:text-white tracking-tight';
+            case 'subheader': return 'text-xl md:text-2xl font-bold mt-5 md:mt-6 mb-2 md:mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight';
             case 'quote': return 'text-lg md:text-xl italic border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 py-2 my-4 text-neutral-600 dark:text-neutral-400';
             case 'list': return 'text-base md:text-lg leading-relaxed text-neutral-800 dark:text-neutral-200 pl-6 relative before:content-["•"] before:absolute before:left-2 before:text-neutral-400';
+            case 'code': return 'text-sm font-mono bg-neutral-900 text-neutral-200 p-4 rounded-lg my-4 whitespace-pre-wrap outline-none border-none resize-none overflow-x-auto';
             default: return 'text-base md:text-lg leading-relaxed text-neutral-800 dark:text-neutral-200';
         }
     };
@@ -206,8 +216,10 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
             // Convert blocks to content array
             const contentArray = blocks.map(b => {
                 if (b.type === 'header') return `## ${b.content}`;
+                if (b.type === 'subheader') return `### ${b.content}`;
                 if (b.type === 'quote') return `> ${b.content}`;
                 if (b.type === 'list') return `- ${b.content}`;
+                if (b.type === 'code') return `\`\`\`javascript\n${b.content}\n\`\`\``;
                 return b.content;
             }).filter(t => t.trim() !== '');
 
