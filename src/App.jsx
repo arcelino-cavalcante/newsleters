@@ -207,7 +207,7 @@ const App = () => {
 
             {/* Navigation */}
             <nav className={`border-b ${borderClass} sticky top-0 z-50 backdrop-blur-md transition-transform duration-500 ${isDarkMode ? 'bg-neutral-950/90' : 'bg-white/90'} ${isFocusMode && readingPost ? '-translate-y-full' : 'translate-y-0'}`}>
-              <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+              <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
                 <h1
                   className="text-xl font-black tracking-tighter uppercase cursor-pointer"
                   onClick={() => { setReadingPost(null); setIsFocusMode(false); }}
@@ -215,7 +215,7 @@ const App = () => {
                   MENS<span className={isDarkMode ? "text-neutral-700" : "text-neutral-300"}>LOG</span>
                 </h1>
 
-                <div className="flex items-center space-x-2 md:space-x-4">
+                <div className="flex items-center space-x-1 md:space-x-4">
                   <button onClick={toggleTheme} className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-full transition-colors">
                     {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
                   </button>
@@ -240,13 +240,13 @@ const App = () => {
 
               {/* Category Bar (Only visible on Home) */}
               {!readingPost && (
-                <div className={`px-6 overflow-x-auto no-scrollbar border-t ${borderClass}`}>
-                  <div className="max-w-4xl mx-auto flex space-x-6 py-3 min-w-max">
+                <div className={`px-4 md:px-6 overflow-x-auto no-scrollbar border-t ${borderClass}`}>
+                  <div className="max-w-4xl mx-auto flex space-x-4 md:space-x-6 py-3 min-w-max">
                     {categories.map(cat => (
                       <button
                         key={cat}
                         onClick={() => setCurrentCategory(cat)}
-                        className={`text-[10px] uppercase tracking-widest font-bold hover:scale-105 transition-all ${currentCategory === cat ? activeCategoryClass : mutedText}`}
+                        className={`text-[10px] uppercase tracking-widest font-bold hover:scale-105 active:scale-95 transition-all py-1 px-1 ${currentCategory === cat ? activeCategoryClass : mutedText}`}
                       >
                         {cat}
                       </button>
@@ -258,59 +258,65 @@ const App = () => {
 
             {/* Settings Panel */}
             {showSettings && readingPost && (
-              <div className={`fixed top-20 right-6 z-50 p-6 border ${borderClass} ${isDarkMode ? 'bg-neutral-900 shadow-white/5' : 'bg-white shadow-xl'} animate-in fade-in zoom-in-95 duration-200 w-64 rounded-xl`}>
-                <div className="space-y-6 text-xs font-sans font-bold uppercase tracking-widest">
-                  <div>
-                    <p className={`mb-3 ${mutedText}`}>Fonte</p>
-                    <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded">
-                      <button onClick={() => setFontFamily('serif')} className={`flex-1 py-1.5 rounded transition-all ${fontFamily === 'serif' ? (isDarkMode ? 'bg-neutral-700 text-white shadow-sm' : 'bg-white text-black shadow-sm') : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200'}`}>Serif</button>
-                      <button onClick={() => setFontFamily('sans')} className={`flex-1 py-1.5 rounded transition-all ${fontFamily === 'sans' ? (isDarkMode ? 'bg-neutral-700 text-white shadow-sm' : 'bg-white text-black shadow-sm') : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200'}`}>Sans</button>
+              <>
+                {/* Backdrop for mobile */}
+                <div className="fixed inset-0 bg-black/20 z-40 md:hidden" onClick={() => setShowSettings(false)} />
+                <div className={`fixed inset-x-0 bottom-0 md:bottom-auto md:inset-x-auto md:top-20 md:right-6 z-50 p-6 border-t md:border ${borderClass} ${isDarkMode ? 'bg-neutral-900 shadow-white/5' : 'bg-white shadow-xl'} animate-in slide-in-from-bottom md:fade-in md:zoom-in-95 duration-200 w-full md:w-64 rounded-t-2xl md:rounded-xl max-h-[70vh] md:max-h-none overflow-y-auto`}>
+                  {/* Mobile drag handle */}
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full md:hidden" />
+                  <div className="space-y-6 text-xs font-sans font-bold uppercase tracking-widest pt-2 md:pt-0">
+                    <div>
+                      <p className={`mb-3 ${mutedText}`}>Fonte</p>
+                      <div className="flex bg-neutral-100 dark:bg-neutral-800 p-1 rounded">
+                        <button onClick={() => setFontFamily('serif')} className={`flex-1 py-2.5 md:py-1.5 rounded transition-all ${fontFamily === 'serif' ? (isDarkMode ? 'bg-neutral-700 text-white shadow-sm' : 'bg-white text-black shadow-sm') : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200'}`}>Serif</button>
+                        <button onClick={() => setFontFamily('sans')} className={`flex-1 py-2.5 md:py-1.5 rounded transition-all ${fontFamily === 'sans' ? (isDarkMode ? 'bg-neutral-700 text-white shadow-sm' : 'bg-white text-black shadow-sm') : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200'}`}>Sans</button>
+                      </div>
+                    </div>
+                    <div>
+                      <p className={`mb-3 ${mutedText}`}>Tamanho ({fontSize}px)</p>
+                      <div className="flex items-center justify-between gap-4 px-2">
+                        <button onClick={() => setFontSize(Math.max(16, fontSize - 2))} className="text-sm p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 rounded">A-</button>
+                        <input
+                          type="range" min="16" max="32" value={fontSize}
+                          onChange={(e) => setFontSize(Number(e.target.value))}
+                          className="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
+                        />
+                        <button onClick={() => setFontSize(Math.min(32, fontSize + 2))} className="text-xl p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 rounded">A+</button>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div>
-                  <p className={`mb-3 ${mutedText}`}>Tamanho ({fontSize}px)</p>
-                  <div className="flex items-center justify-between gap-4 px-2">
-                    <button onClick={() => setFontSize(Math.max(16, fontSize - 2))} className="text-sm p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 rounded">A-</button>
-                    <input
-                      type="range" min="16" max="32" value={fontSize}
-                      onChange={(e) => setFontSize(Number(e.target.value))}
-                      className="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer dark:bg-neutral-700"
-                    />
-                    <button onClick={() => setFontSize(Math.min(32, fontSize + 2))} className="text-xl p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 rounded">A+</button>
-                  </div>
-                </div>
-              </div>
+              </>
             )}
 
             {/* Main Content */}
-            <main className={`max-w-7xl mx-auto px-6 py-12 transition-all duration-700 ${isFocusMode ? 'pt-24' : 'pt-12'}`}>
+            <main className={`max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 transition-all duration-700 ${isFocusMode ? 'pt-16 md:pt-24' : 'pt-8 md:pt-12'}`}>
               {!readingPost ? (
                 /* Post List */
                 <div className="animate-in fade-in duration-700 max-w-2xl mx-auto">
-                  <header className="mb-20 pt-10">
-                    <p className={`text-[10px] uppercase tracking-[0.4em] font-bold ${mutedText} mb-4`}>
+                  <header className="mb-12 md:mb-20 pt-6 md:pt-10">
+                    <p className={`text-[10px] uppercase tracking-[0.4em] font-bold ${mutedText} mb-3 md:mb-4`}>
                       {currentCategory === 'Todos' ? siteConfig.siteSubtitle : `Categoria: ${currentCategory}`}
                     </p>
-                    <h2 className="text-5xl md:text-7xl font-black leading-none tracking-tighter">
+                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-black leading-none tracking-tighter">
                       {currentCategory === 'Todos' ? siteConfig.siteTitle : currentCategory.toUpperCase() + "."}
                     </h2>
                   </header>
 
-                  <div className="space-y-20">
+                  <div className="space-y-12 md:space-y-20">
                     {displayPosts.length > 0 ? displayPosts.map(post => (
                       <article key={post.id} className="group cursor-pointer" onClick={() => { setReadingPost(post); window.scrollTo(0, 0); }}>
-                        <div className={`flex items-center gap-4 mb-3 text-[10px] font-sans font-bold uppercase tracking-widest ${mutedText}`}>
+                        <div className={`flex items-center gap-3 md:gap-4 mb-2 md:mb-3 text-[10px] font-sans font-bold uppercase tracking-widest ${mutedText}`}>
                           <span>{post.category}</span>
                           <span className="flex items-center gap-1"><Clock size={12} /> {post.readTime}</span>
                         </div>
-                        <h3 className="text-3xl md:text-4xl font-black mb-4 leading-tight group-hover:underline decoration-1 underline-offset-4">
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-black mb-3 md:mb-4 leading-tight group-hover:underline decoration-1 underline-offset-4">
                           {post.title}
                         </h3>
-                        <p className={`text-lg leading-relaxed ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                        <p className={`text-base md:text-lg leading-relaxed ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
                           {post.excerpt}
                         </p>
-                        <div className={`mt-4 flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-opacity ${isDarkMode ? 'text-white' : 'text-black'}`}>
+                        <div className={`mt-3 md:mt-4 flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity ${isDarkMode ? 'text-white' : 'text-black'}`}>
                           Ler Artigo <ArrowRight size={12} />
                         </div>
                       </article>
@@ -322,13 +328,13 @@ const App = () => {
                   </div>
 
                   {hasMorePosts && displayPosts.length > 0 && (
-                    <div className="mt-20 text-center">
+                    <div className="mt-12 md:mt-20 text-center">
                       <button 
                         onClick={handleLoadMore}
                         disabled={isLoadingMore}
-                        className={`px-8 py-3 border ${borderClass} text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all ${isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full md:w-auto px-8 py-3.5 md:py-3 border ${borderClass} text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:scale-[0.98] transition-all ${isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
-                        {isLoadingMore ? 'Carregando...' : 'Carregar Artigos Anteriores'}
+                        {isLoadingMore ? 'Carregando...' : 'Carregar Mais'}
                       </button>
                     </div>
                   )}
@@ -375,11 +381,11 @@ const App = () => {
                     )}
 
                     <article>
-                      <header className="mb-16">
-                        <div className={`font-sans text-[10px] uppercase tracking-[0.2em] font-bold mb-4 ${mutedText}`}>
+                      <header className="mb-10 md:mb-16">
+                        <div className={`font-sans text-[10px] uppercase tracking-[0.2em] font-bold mb-3 md:mb-4 ${mutedText}`}>
                           {readingPost.category} • {readingPost.date} • {readingPost.readTime}
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] mb-8">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] mb-6 md:mb-8">
                           {readingPost.title}
                         </h2>
                         <div className={`w-16 h-0.5 ${isDarkMode ? 'bg-neutral-700' : 'bg-neutral-200'}`} />
@@ -462,7 +468,7 @@ const App = () => {
                       {postBottomAds.map(ad => <AdBlock key={ad.id} code={ad.code} />)}
                     </article>
 
-                    <footer className={`mt-32 pt-16 border-t ${borderClass} flex flex-col items-center gap-12 text-center`}>
+                    <footer className={`mt-16 md:mt-32 pt-10 md:pt-16 border-t ${borderClass} flex flex-col items-center gap-8 md:gap-12 text-center`}>
                       <div className="space-y-4">
                         <BookOpen size={20} className="mx-auto opacity-20" />
                         {footerAds.map(ad => <AdBlock key={ad.id} code={ad.code} />)}
@@ -473,7 +479,7 @@ const App = () => {
 
                       <button
                         onClick={() => { setReadingPost(null); window.scrollTo(0, 0); }}
-                        className={`px-10 py-4 border ${borderClass} text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all`}
+                        className={`w-full md:w-auto px-10 py-4 border ${borderClass} text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black active:scale-[0.98] transition-all`}
                       >
                         Concluir Leitura
                       </button>
@@ -485,7 +491,7 @@ const App = () => {
 
             {/* Floating Info / Footer */}
             {!readingPost && (
-              <footer className={`py-12 text-center border-t ${borderClass} mt-20`}>
+              <footer className={`py-8 md:py-12 text-center border-t ${borderClass} mt-12 md:mt-20 px-4`}>
                 {footerAds.map(ad => <AdBlock key={ad.id} code={ad.code} />)}
                 <p className={`text-[10px] uppercase tracking-widest font-bold ${mutedText}`}>
                   © 2026 MensLog • Estoicismo Moderno

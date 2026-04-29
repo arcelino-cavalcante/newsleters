@@ -81,7 +81,7 @@ const AdManager = () => {
 
     if (showForm) {
         return (
-            <div className="bg-white rounded-2xl p-6 border border-neutral-200">
+            <div className="bg-white rounded-2xl p-4 md:p-6 border border-neutral-200">
                 <div className="flex items-center justify-between mb-8">
                     <h3 className="text-xl font-bold text-neutral-900">
                         {editingAd ? 'Editar Anúncio/Script' : 'Novo Anúncio/Script'}
@@ -166,14 +166,14 @@ const AdManager = () => {
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
-            <div className="p-6 flex justify-between items-center border-b border-neutral-200">
+            <div className="p-4 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-neutral-200">
                 <div>
-                    <h3 className="text-xl font-bold text-neutral-900">Gerenciador de Códigos</h3>
-                    <p className="text-xs text-neutral-400">Insira scripts de anúncios e rastreamento (AdSense, Analytics, etc.)</p>
+                    <h3 className="text-lg md:text-xl font-bold text-neutral-900">Gerenciador de Códigos</h3>
+                    <p className="text-xs text-neutral-400">Scripts de anúncios e rastreamento</p>
                 </div>
                 <button 
                     onClick={handleCreateNew}
-                    className="flex items-center gap-2 bg-neutral-900 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-neutral-900 text-white px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
                 >
                     <Plus size={16} /> Novo Código
                 </button>
@@ -190,7 +190,8 @@ const AdManager = () => {
                 </div>
             ) : (
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    {/* Desktop Table */}
+                    <table className="w-full text-left border-collapse hidden md:table">
                         <thead>
                             <tr className="border-b border-neutral-100 bg-neutral-50">
                                 <th className="p-4 text-[10px] uppercase tracking-widest font-bold text-neutral-500 w-1/3">Nome</th>
@@ -241,6 +242,35 @@ const AdManager = () => {
                             ))}
                         </tbody>
                     </table>
+
+                    {/* Mobile Card List */}
+                    <div className="md:hidden divide-y divide-neutral-100">
+                        {ads.map(ad => (
+                            <div key={ad.id} className="p-4">
+                                <div className="flex justify-between items-start gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-bold text-neutral-900 text-sm mb-2">{ad.name}</h4>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="inline-block px-2 py-0.5 bg-neutral-100 rounded text-[10px] font-bold uppercase tracking-wider text-neutral-600">
+                                                {PLACEMENTS[ad.placement] || ad.placement}
+                                            </span>
+                                            <button 
+                                                onClick={() => handleToggleStatus(ad)}
+                                                className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded transition-colors ${ad.active ? 'bg-green-500/10 text-green-500' : 'bg-neutral-200 text-neutral-500'}`}
+                                            >
+                                                {ad.active ? <Play size={10} /> : <Pause size={10} />}
+                                                {ad.active ? 'Ativo' : 'Pausado'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <button onClick={() => handleEdit(ad)} className="p-2 text-neutral-400 hover:text-blue-500 transition-colors" title="Editar"><Edit2 size={16} /></button>
+                                        <button onClick={() => handleDelete(ad.id)} className="p-2 text-neutral-400 hover:text-red-500 transition-colors" title="Excluir"><Trash2 size={16} /></button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

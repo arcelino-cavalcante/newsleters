@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon, Loader2, Quote, List, Eye, Edit3 } from 'lucide-react';
+import { ArrowLeft, Plus, X, UploadCloud, Layout, Type, Save, Image as ImageIcon, Loader2, Quote, List, Eye, Edit3, Settings } from 'lucide-react';
 import { categoryService } from '../services/categoryService';
 import { postService } from '../services/postService';
 import { storageService } from '../services/storageService';
@@ -154,10 +154,10 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
 
     const getBlockClass = (type) => {
         switch(type) {
-            case 'header': return 'text-3xl font-bold mt-8 mb-4 text-neutral-900 dark:text-white tracking-tight';
-            case 'quote': return 'text-xl italic border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 py-2 my-4 text-neutral-600 dark:text-neutral-400';
-            case 'list': return 'text-lg leading-relaxed text-neutral-800 dark:text-neutral-200 pl-6 relative before:content-["•"] before:absolute before:left-2 before:text-neutral-400';
-            default: return 'text-lg leading-relaxed text-neutral-800 dark:text-neutral-200';
+            case 'header': return 'text-2xl md:text-3xl font-bold mt-6 md:mt-8 mb-3 md:mb-4 text-neutral-900 dark:text-white tracking-tight';
+            case 'quote': return 'text-lg md:text-xl italic border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 py-2 my-4 text-neutral-600 dark:text-neutral-400';
+            case 'list': return 'text-base md:text-lg leading-relaxed text-neutral-800 dark:text-neutral-200 pl-6 relative before:content-["•"] before:absolute before:left-2 before:text-neutral-400';
+            default: return 'text-base md:text-lg leading-relaxed text-neutral-800 dark:text-neutral-200';
         }
     };
 
@@ -244,62 +244,68 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
             <input type="file" ref={imageInputRef} hidden accept="image/*" onChange={handleImageUpload} />
             <input type="file" ref={fileInputRef} hidden accept=".pdf,.doc,.docx,.zip,.txt" onChange={handleFileUpload} />
 
-            {/* Top Bar */}
-            <nav className="sticky top-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-neutral-200 dark:border-neutral-800 px-6 py-4 flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                    <button onClick={onClose} className="p-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
-                        <ArrowLeft size={20} />
-                    </button>
-                    <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">Editor Profissional</span>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setIsPreview(!isPreview)}
-                        className="text-xs font-bold uppercase tracking-widest px-4 py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex items-center gap-2"
-                    >
-                        {isPreview ? <><Edit3 size={16}/> Editar</> : <><Eye size={16}/> Preview</>}
-                    </button>
-                    <button
-                        onClick={() => setMetaOpen(true)}
-                        className="text-xs font-bold uppercase tracking-widest px-4 py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
-                    >
-                        Metadados
-                    </button>
-                    <button
-                        onClick={() => imageInputRef.current.click()}
-                        className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
-                        title="Inserir Imagem"
-                        disabled={isUploading}
-                    >
-                        {isUploading ? <Loader2 size={20} className="animate-spin text-neutral-400" /> : <ImageIcon size={20} className="text-neutral-600 dark:text-neutral-400" />}
-                    </button>
-                    <button
-                        onClick={() => fileInputRef.current.click()}
-                        className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
-                        title="Anexar Arquivo"
-                        disabled={isUploading}
-                    >
-                        {isUploading ? <Loader2 size={20} className="animate-spin text-neutral-400" /> : <UploadCloud size={20} className="text-neutral-600 dark:text-neutral-400" />}
-                    </button>
-                    <button
-                        onClick={handlePublish}
-                        disabled={isPublishing}
-                        className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold uppercase tracking-widest px-6 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg shadow-black/5"
-                    >
-                        {isPublishing ? 'Publicando...' : <><Save size={14} /> Publicar</>}
-                    </button>
+            {/* Top Bar — Mobile-first: two rows on small screens */}
+            <nav className="sticky top-0 z-10 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-neutral-200 dark:border-neutral-800 px-4 md:px-6 py-3 md:py-4">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <button onClick={onClose} className="p-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                            <ArrowLeft size={20} />
+                        </button>
+                        <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-neutral-500 hidden sm:inline">Editor</span>
+                    </div>
+                    <div className="flex items-center gap-1 md:gap-3">
+                        <button
+                            onClick={() => setIsPreview(!isPreview)}
+                            className="p-2 md:px-4 md:py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex items-center gap-1 md:gap-2"
+                            title={isPreview ? 'Editar' : 'Preview'}
+                        >
+                            {isPreview ? <Edit3 size={18}/> : <Eye size={18}/>}
+                            <span className="hidden md:inline text-xs font-bold uppercase tracking-widest">{isPreview ? 'Editar' : 'Preview'}</span>
+                        </button>
+                        <button
+                            onClick={() => setMetaOpen(true)}
+                            className="p-2 md:px-4 md:py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+                            title="Metadados"
+                        >
+                            <Settings size={18} className="md:hidden" />
+                            <span className="hidden md:inline text-xs font-bold uppercase tracking-widest">Metadados</span>
+                        </button>
+                        <button
+                            onClick={() => imageInputRef.current.click()}
+                            className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                            title="Inserir Imagem"
+                            disabled={isUploading}
+                        >
+                            {isUploading ? <Loader2 size={18} className="animate-spin text-neutral-400" /> : <ImageIcon size={18} className="text-neutral-600 dark:text-neutral-400" />}
+                        </button>
+                        <button
+                            onClick={() => fileInputRef.current.click()}
+                            className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors hidden sm:flex"
+                            title="Anexar Arquivo"
+                            disabled={isUploading}
+                        >
+                            {isUploading ? <Loader2 size={18} className="animate-spin text-neutral-400" /> : <UploadCloud size={18} className="text-neutral-600 dark:text-neutral-400" />}
+                        </button>
+                        <button
+                            onClick={handlePublish}
+                            disabled={isPublishing}
+                            className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-[10px] md:text-xs font-bold uppercase tracking-widest px-3 md:px-6 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1 md:gap-2 shadow-lg shadow-black/5 ml-1"
+                        >
+                            {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <><Save size={14} /> <span className="hidden sm:inline">Publicar</span></>}
+                        </button>
+                    </div>
                 </div>
             </nav>
 
-            <div className="max-w-3xl mx-auto px-6 py-20 min-h-screen">
+            <div className="max-w-3xl mx-auto px-4 md:px-6 py-10 md:py-20 min-h-screen">
                 {isPreview ? (
                     <div className="prose dark:prose-invert prose-neutral max-w-none">
-                        <h1 className="text-5xl md:text-6xl font-black mb-12 text-neutral-900 dark:text-white">{postData.title || 'Sem Título'}</h1>
+                        <h1 className="text-3xl sm:text-4xl md:text-6xl font-black mb-8 md:mb-12 text-neutral-900 dark:text-white">{postData.title || 'Sem Título'}</h1>
                         {blocks.map((b, i) => {
-                            if (b.type === 'header') return <h2 key={i} className="text-3xl font-bold mt-8 mb-4 text-neutral-900 dark:text-white">{b.content}</h2>;
+                            if (b.type === 'header') return <h2 key={i} className="text-2xl md:text-3xl font-bold mt-6 md:mt-8 mb-3 md:mb-4 text-neutral-900 dark:text-white">{b.content}</h2>;
                             if (b.type === 'quote') return <blockquote key={i} className="border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic my-4 text-neutral-600 dark:text-neutral-400">{b.content}</blockquote>;
                             if (b.type === 'list') return <ul key={i} className="list-disc pl-6 my-2 text-neutral-800 dark:text-neutral-200"><li>{b.content}</li></ul>;
-                            return <p key={i} className="text-lg leading-relaxed mb-4 text-neutral-800 dark:text-neutral-200">{b.content}</p>;
+                            return <p key={i} className="text-base md:text-lg leading-relaxed mb-4 text-neutral-800 dark:text-neutral-200">{b.content}</p>;
                         })}
                     </div>
                 ) : (
@@ -307,18 +313,18 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                         <input
                             type="text"
                             placeholder="Título do Artigo"
-                            className="w-full text-5xl md:text-6xl font-black bg-transparent border-none outline-none placeholder:text-neutral-300 dark:placeholder:text-neutral-800 mb-12 text-neutral-900 dark:text-white"
+                            className="w-full text-3xl sm:text-4xl md:text-6xl font-black bg-transparent border-none outline-none placeholder:text-neutral-300 dark:placeholder:text-neutral-800 mb-8 md:mb-12 text-neutral-900 dark:text-white"
                             value={postData.title}
                             onChange={e => setPostData({ ...postData, title: e.target.value })}
                             autoFocus
                         />
 
-                        <div className="space-y-4">
+                        <div className="space-y-3 md:space-y-4">
                             {blocks.map((block, index) => (
-                                <div key={index} className="group relative flex items-start gap-2">
+                                <div key={index} className="group relative flex items-start gap-1 md:gap-2">
                                     <button
                                         onClick={() => toggleBlockType(index)}
-                                        className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded"
+                                        className="mt-1 md:mt-2 opacity-60 md:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-1 md:p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded shrink-0"
                                         title="Alternar Formatação (Texto, Título, Citação, Lista)"
                                     >
                                         {getBlockIcon(block.type)}
@@ -342,7 +348,7 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                         </div>
 
                         <div
-                            className="mt-12 opacity-40 hover:opacity-100 cursor-pointer flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-opacity text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                            className="mt-8 md:mt-12 opacity-60 hover:opacity-100 active:opacity-100 cursor-pointer flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-opacity text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white py-3"
                             onClick={() => setBlocks([...blocks, { type: 'paragraph', content: '' }])}
                         >
                             <Plus size={16} /> Novo Bloco
@@ -351,46 +357,52 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
                 )}
             </div>
 
-            {/* Metadata Sidebar */}
+            {/* Metadata Sidebar — Full screen on mobile, sidebar on desktop */}
             {metaOpen && (
-                <div className="fixed inset-y-0 right-0 w-80 bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 shadow-2xl p-6 z-50 animate-in slide-in-from-right">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Metadados</h3>
-                        <button onClick={() => setMetaOpen(false)} className="text-neutral-500 hover:text-neutral-900 dark:hover:text-white"><X size={18} /></button>
-                    </div>
+                <>
+                    {/* Overlay backdrop */}
+                    <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={() => setMetaOpen(false)} />
+                    <div className="fixed inset-x-0 bottom-0 md:inset-y-0 md:left-auto md:right-0 md:w-80 bg-white dark:bg-neutral-900 border-t md:border-t-0 md:border-l border-neutral-200 dark:border-neutral-800 shadow-2xl p-6 z-50 animate-in slide-in-from-bottom md:slide-in-from-right max-h-[85vh] md:max-h-none overflow-y-auto rounded-t-2xl md:rounded-none">
+                        <div className="flex justify-between items-center mb-6 md:mb-8">
+                            {/* Mobile drag handle */}
+                            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full md:hidden" />
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">Metadados</h3>
+                            <button onClick={() => setMetaOpen(false)} className="text-neutral-500 hover:text-neutral-900 dark:hover:text-white p-2"><X size={18} /></button>
+                        </div>
 
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-400">Categoria</label>
-                            <select
-                                className="w-full p-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-neutral-900 dark:text-white focus:border-neutral-400 transition-colors"
-                                value={postData.category}
-                                onChange={e => setPostData({ ...postData, category: e.target.value })}
-                            >
-                                {categories.map(cat => cat !== 'Todos' && <option key={cat} value={cat}>{cat}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-400">Tempo de Leitura (Automático)</label>
-                            <input
-                                type="text"
-                                className="w-full p-2.5 text-sm bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
-                                value={postData.readTime}
-                                readOnly
-                                disabled
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-400">Resumo (SEO)</label>
-                            <textarea
-                                className="w-full p-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none h-32 resize-none text-neutral-900 dark:text-white focus:border-neutral-400 transition-colors"
-                                value={postData.excerpt}
-                                onChange={e => setPostData({ ...postData, excerpt: e.target.value })}
-                                placeholder="Um resumo curto para atrair leitores..."
-                            />
+                        <div className="space-y-5 md:space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-400">Categoria</label>
+                                <select
+                                    className="w-full p-3 md:p-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-neutral-900 dark:text-white focus:border-neutral-400 transition-colors"
+                                    value={postData.category}
+                                    onChange={e => setPostData({ ...postData, category: e.target.value })}
+                                >
+                                    {categories.map(cat => cat !== 'Todos' && <option key={cat} value={cat}>{cat}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-400">Tempo de Leitura (Automático)</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-3 md:p-2.5 text-sm bg-neutral-100 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
+                                    value={postData.readTime}
+                                    readOnly
+                                    disabled
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-neutral-700 dark:text-neutral-400">Resumo (SEO)</label>
+                                <textarea
+                                    className="w-full p-3 md:p-2.5 text-sm bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg outline-none h-32 resize-none text-neutral-900 dark:text-white focus:border-neutral-400 transition-colors"
+                                    value={postData.excerpt}
+                                    onChange={e => setPostData({ ...postData, excerpt: e.target.value })}
+                                    placeholder="Um resumo curto para atrair leitores..."
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );
