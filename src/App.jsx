@@ -296,7 +296,7 @@ const App = () => {
                 <div className="animate-in fade-in duration-700 max-w-2xl mx-auto">
                   <header className="mb-12 md:mb-20 pt-6 md:pt-10">
                     <p className={`text-[10px] uppercase tracking-[0.4em] font-bold ${mutedText} mb-3 md:mb-4`}>
-                      {currentCategory === 'Todos' ? siteConfig.siteSubtitle : `Categoria: ${currentCategory}`}
+                      {currentCategory === 'Todos' ? siteConfig.siteSubtitle : 'EXPLORAR'}
                     </p>
                     <h2 className="text-3xl sm:text-5xl md:text-7xl font-black leading-none tracking-tighter">
                       {currentCategory === 'Todos' ? siteConfig.siteTitle : currentCategory.toUpperCase() + "."}
