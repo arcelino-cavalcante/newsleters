@@ -123,7 +123,7 @@ const AdminDashboard = ({ user }) => {
                         { id: 'posts', icon: <List size={16} />, label: 'Artigos' },
                         { id: 'categories', icon: <Folder size={16} />, label: 'Categorias' },
                         { id: 'ads', icon: <Megaphone size={16} />, label: 'Anúncios' },
-                        { id: 'settings', icon: <Settings size={16} />, label: 'Config' },
+                        { id: 'settings', icon: <Settings size={16} />, label: 'Configurações' },
                     ].map(tab => (
                         <button
                             key={tab.id}

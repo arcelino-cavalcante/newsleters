@@ -7,7 +7,10 @@ const SettingsManager = () => {
     const { toast } = useModal();
     const [settings, setSettings] = useState({
         siteTitle: '',
-        siteSubtitle: ''
+        siteSubtitle: '',
+        navLogo: '',
+        aboutText: '',
+        footerText: ''
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -78,6 +81,47 @@ const SettingsManager = () => {
                         placeholder="EX: FILOSOFIA APLICADA"
                     />
                     <p className="mt-2 text-[10px] text-neutral-500">Pequeno texto acima do título principal.</p>
+                </div>
+
+                <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
+                        Logo da Navegação
+                    </label>
+                    <input
+                        type="text"
+                        className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold uppercase tracking-widest focus:border-neutral-400 transition-colors"
+                        value={settings.navLogo}
+                        onChange={e => setSettings({ ...settings, navLogo: e.target.value })}
+                        placeholder="EX: MENSLOG"
+                    />
+                    <p className="mt-2 text-[10px] text-neutral-500">Nome exibido na barra superior.</p>
+                </div>
+
+                <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
+                        Texto 'Sobre' (Modal)
+                    </label>
+                    <textarea
+                        className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 focus:border-neutral-400 transition-colors h-32 resize-none"
+                        value={settings.aboutText}
+                        onChange={e => setSettings({ ...settings, aboutText: e.target.value })}
+                        placeholder="Descreva o propósito do site..."
+                    />
+                    <p className="mt-2 text-[10px] text-neutral-500">Texto exibido ao clicar no ícone de livro.</p>
+                </div>
+
+                <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
+                        Texto do Rodapé
+                    </label>
+                    <input
+                        type="text"
+                        className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold tracking-widest focus:border-neutral-400 transition-colors"
+                        value={settings.footerText}
+                        onChange={e => setSettings({ ...settings, footerText: e.target.value })}
+                        placeholder="EX: © 2026 MensLog • Estoicismo Moderno"
+                    />
+                    <p className="mt-2 text-[10px] text-neutral-500">Aparece no final da página.</p>
                 </div>
 
                 <div className="pt-4 flex items-center gap-4">

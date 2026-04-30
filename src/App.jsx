@@ -55,7 +55,10 @@ const App = () => {
   const [categories, setCategories] = useState(['Todos']);
   const [siteConfig, setSiteConfig] = useState({
     siteTitle: "O CAMINHO DO HOMEM",
-    siteSubtitle: "FILOSOFIA APLICADA"
+    siteSubtitle: "FILOSOFIA APLICADA",
+    navLogo: "MENSLOG",
+    aboutText: "O Menslog é um espaço dedicado ao desenvolvimento pessoal, estoicismo e disciplina para o homem contemporâneo.\n\nAcreditamos que a força mental, a clareza de propósito e o foco naquilo que podemos controlar são os pilares para uma vida bem vivida, independente das circunstâncias externas.\n\nNosso objetivo é compilar o conhecimento prático e filosófico que ajuda homens a construírem resiliência, liderança e valores inabaláveis.",
+    footerText: "© 2026 MensLog • Estoicismo Moderno"
   });
   const [user, setUser] = useState(undefined);
   const [currentCategory, setCurrentCategory] = useState('Todos');
@@ -306,7 +309,7 @@ const App = () => {
                   className="text-xl font-black tracking-tighter uppercase cursor-pointer"
                   onClick={() => { setReadingPost(null); setIsFocusMode(false); }}
                 >
-                  MENS<span className={isDarkMode ? "text-neutral-700" : "text-neutral-300"}>LOG</span>
+                  {siteConfig.navLogo || "MENSLOG"}
                 </h1>
 
                 <div className="flex items-center space-x-1 md:space-x-4">
@@ -717,7 +720,7 @@ const App = () => {
               <footer className={`py-8 md:py-12 text-center border-t ${borderClass} mt-12 md:mt-20 px-4`}>
                 {footerAds.map(ad => <AdBlock key={ad.id} code={ad.code} />)}
                 <p className={`text-[10px] uppercase tracking-widest font-bold ${mutedText}`}>
-                  © 2026 MensLog • Estoicismo Moderno
+                  {siteConfig.footerText || "© 2026 MensLog • Estoicismo Moderno"}
                 </p>
               </footer>
             )}
@@ -749,16 +752,8 @@ const App = () => {
                       </button>
                     </div>
                     
-                    <div className="space-y-4 text-sm leading-relaxed mb-8">
-                      <p>
-                        O <strong>Menslog</strong> é um espaço dedicado ao desenvolvimento pessoal, estoicismo e disciplina para o homem contemporâneo.
-                      </p>
-                      <p>
-                        Acreditamos que a força mental, a clareza de propósito e o foco naquilo que podemos controlar são os pilares para uma vida bem vivida, independente das circunstâncias externas.
-                      </p>
-                      <p>
-                        Nosso objetivo é compilar o conhecimento prático e filosófico que ajuda homens a construírem resiliência, liderança e valores inabaláveis.
-                      </p>
+                    <div className="space-y-4 text-sm leading-relaxed mb-8 whitespace-pre-wrap">
+                      {siteConfig.aboutText || "O Menslog é um espaço dedicado ao desenvolvimento pessoal..."}
                     </div>
 
                     <button
