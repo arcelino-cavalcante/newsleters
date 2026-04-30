@@ -230,18 +230,21 @@ const ModernEditor = ({ onClose, initialPost = null }) => {
 
             if (initialPost?.id) {
                 await postService.updatePost(initialPost.id, finalData);
-                toast('Artigo atualizado com sucesso!', 'success');
+                toast('Atualizado! Já visível localmente (Deploy real em ~2 min)', 'success');
             } else {
                 await postService.createPost({
                     ...finalData,
                     date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }),
                 });
-                toast('Artigo publicado com sucesso!', 'success');
+                toast('Publicado! Já visível localmente (Deploy real em ~2 min)', 'success');
             }
 
             localStorage.removeItem(DRAFT_KEY);
             onClose();
-            window.location.reload();
+            // Optional: Small delay to ensure the toast is seen before reload, though reload keeps it local
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         } catch (error) {
             toast('Erro ao salvar: ' + error.message, 'error');
         } finally {
