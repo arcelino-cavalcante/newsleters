@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Loader2, Check } from 'lucide-react';
+import { Save, Loader2, Check, X } from 'lucide-react';
 import { settingsService } from '../services/settingsService';
 import { useModal } from './ModalProvider';
 
@@ -122,6 +122,61 @@ const SettingsManager = () => {
                         placeholder="EX: © 2026 MensLog • Estoicismo Moderno"
                     />
                     <p className="mt-2 text-[10px] text-neutral-500">Aparece no final da página.</p>
+                </div>
+
+                <div className="pt-8 border-t border-neutral-100">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 mb-4">Frases do Dia (Rotativas)</h3>
+                    <div className="space-y-4 mb-4">
+                        {(settings.quotes || []).map((quote, idx) => (
+                            <div key={idx} className="flex gap-4 items-start p-4 bg-neutral-50 border border-neutral-200 rounded-lg group">
+                                <div className="flex-1 space-y-2">
+                                    <input
+                                        type="text"
+                                        className="w-full p-2 bg-white border border-neutral-200 rounded outline-none text-sm focus:border-neutral-400"
+                                        value={quote.text}
+                                        placeholder="Texto da frase"
+                                        onChange={e => {
+                                            const newQuotes = [...settings.quotes];
+                                            newQuotes[idx].text = e.target.value;
+                                            setSettings({ ...settings, quotes: newQuotes });
+                                        }}
+                                    />
+                                    <input
+                                        type="text"
+                                        className="w-full p-2 bg-white border border-neutral-200 rounded outline-none text-xs text-neutral-600 focus:border-neutral-400"
+                                        value={quote.author}
+                                        placeholder="Autor"
+                                        onChange={e => {
+                                            const newQuotes = [...settings.quotes];
+                                            newQuotes[idx].author = e.target.value;
+                                            setSettings({ ...settings, quotes: newQuotes });
+                                        }}
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newQuotes = settings.quotes.filter((_, i) => i !== idx);
+                                        setSettings({ ...settings, quotes: newQuotes });
+                                    }}
+                                    className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors mt-1"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const newQuotes = [...(settings.quotes || []), { text: '', author: '' }];
+                            setSettings({ ...settings, quotes: newQuotes });
+                        }}
+                        className="text-xs font-bold uppercase tracking-widest text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                        + Adicionar Nova Frase
+                    </button>
+                    <p className="mt-2 text-[10px] text-neutral-500">O sistema escolhe automaticamente uma destas frases a cada dia.</p>
                 </div>
 
                 <div className="pt-4 flex items-center gap-4">

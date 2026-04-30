@@ -29,21 +29,14 @@ const AdminRoute = ({ user, children }) => {
   return children;
 };
 
-// Stoic Quotes for daily rotation
-const STOIC_QUOTES = [
-  { text: "A felicidade da sua vida depende da qualidade dos seus pensamentos.", author: "Marco Aurélio" },
-  { text: "Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que são difíceis.", author: "Sêneca" },
-  { text: "Primeiro diga a si mesmo o que você seria; então faça o que tem que fazer.", author: "Epicteto" },
-  { text: "A alma se torna tingida pela cor de seus pensamentos.", author: "Marco Aurélio" },
-  { text: "É preciso toda uma vida para aprender a viver.", author: "Sêneca" },
-  { text: "O homem que conquistou a si mesmo é muito maior do que aquele que conquistou mil batalhas.", author: "Buda" },
-  { text: "Que a força me seja dada para suportar o que não pode ser mudado e a coragem para mudar o que pode ser.", author: "Sêneca" },
-  { text: "Temos o poder sobre nossa mente, não sobre eventos externos. Perceba isso e encontrará força.", author: "Marco Aurélio" },
-  { text: "A riqueza não consiste em ter grandes posses, mas em ter poucas necessidades.", author: "Epicteto" },
-  { text: "O sofrimento é uma parte da natureza; mas a miséria é uma escolha.", author: "Marco Aurélio" },
+const DEFAULT_QUOTES = [
+  { text: "A felicidade da sua vida depende da qualidade dos seus pensamentos.", author: "Marco Aurélio" }
 ];
 
-const getDailyQuote = () => STOIC_QUOTES[Math.floor((Date.now() / 86400000)) % STOIC_QUOTES.length];
+const getDailyQuote = (quotesList) => {
+  const list = quotesList && quotesList.length > 0 ? quotesList : DEFAULT_QUOTES;
+  return list[Math.floor((Date.now() / 86400000)) % list.length];
+};
 
 const App = () => {
   const { toast } = useModal();
@@ -435,10 +428,10 @@ const App = () => {
                     {currentCategory === 'Todos' && !searchTerm && (
                       <div className="max-w-xl border-l-4 border-neutral-900 dark:border-white pl-4 py-1 animate-in fade-in duration-1000">
                         <p className={`italic text-lg md:text-xl font-serif ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'} mb-2`}>
-                          "{getDailyQuote().text}"
+                          "{getDailyQuote(siteConfig.quotes).text}"
                         </p>
                         <p className={`text-[10px] font-bold uppercase tracking-widest ${mutedText}`}>
-                          — {getDailyQuote().author}
+                          — {getDailyQuote(siteConfig.quotes).author}
                         </p>
                       </div>
                     )}

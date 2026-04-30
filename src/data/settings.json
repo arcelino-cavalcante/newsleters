@@ -1,4 +1,16 @@
 {
   "siteTitle": "MENS LOG",
-  "siteSubtitle": "FILOSOFIA APLICADA"
+  "siteSubtitle": "FILOSOFIA APLICADA",
+  "quotes": [
+    { "text": "A felicidade da sua vida depende da qualidade dos seus pensamentos.", "author": "Marco Aurélio" },
+    { "text": "Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que são difíceis.", "author": "Sêneca" },
+    { "text": "Primeiro diga a si mesmo o que você seria; então faça o que tem que fazer.", "author": "Epicteto" },
+    { "text": "A alma se torna tingida pela cor de seus pensamentos.", "author": "Marco Aurélio" },
+    { "text": "É preciso toda uma vida para aprender a viver.", "author": "Sêneca" },
+    { "text": "O homem que conquistou a si mesmo é muito maior do que aquele que conquistou mil batalhas.", "author": "Buda" },
+    { "text": "Que a força me seja dada para suportar o que não pode ser mudado e a coragem para mudar o que pode ser.", "author": "Sêneca" },
+    { "text": "Temos o poder sobre nossa mente, não sobre eventos externos. Perceba isso e encontrará força.", "author": "Marco Aurélio" },
+    { "text": "A riqueza não consiste em ter grandes posses, mas em ter poucas necessidades.", "author": "Epicteto" },
+    { "text": "O sofrimento é uma parte da natureza; mas a miséria é uma escolha.", "author": "Marco Aurélio" }
+  ]
 }
