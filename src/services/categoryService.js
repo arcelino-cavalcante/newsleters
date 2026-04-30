@@ -1,37 +1,21 @@
 import categoriesData from '../data/categories.json';
 import { githubService } from './githubService';
 
-const OPTIMISTIC_KEY = 'menslog_optimistic_categories';
-const OPTIMISTIC_TTL = 5 * 60 * 1000;
+let localCategories = null;
 
-const getOptimisticData = () => {
-    try {
-        const itemStr = localStorage.getItem(OPTIMISTIC_KEY);
-        if (itemStr) {
-            const item = JSON.parse(itemStr);
-            if (Date.now() - item.timestamp < OPTIMISTIC_TTL) {
-                return item.data;
-            } else {
-                localStorage.removeItem(OPTIMISTIC_KEY);
-            }
-        }
-    } catch (e) {
-        console.error(e);
-    }
+const getLatestData = () => {
+    if (localCategories) return localCategories;
     return [...categoriesData];
 };
 
-const saveOptimisticData = (data) => {
-    localStorage.setItem(OPTIMISTIC_KEY, JSON.stringify({
-        data,
-        timestamp: Date.now()
-    }));
+const updateLocalData = (data) => {
+    localCategories = data;
 };
 
 export const categoryService = {
     async getAllCategories() {
         try {
-            return getOptimisticData();
+            return getLatestData();
         } catch (error) {
             console.error("Erro ao buscar categorias:", error);
             return [];
@@ -44,9 +28,9 @@ export const categoryService = {
                 ...categoryData,
                 id: crypto.randomUUID()
             };
-            const updatedCategories = [...getOptimisticData(), newCategory];
+            const updatedCategories = [...getLatestData(), newCategory];
             await githubService.saveData('categories.json', updatedCategories);
-            saveOptimisticData(updatedCategories);
+            updateLocalData(updatedCategories);
             return newCategory.id;
         } catch (error) {
             console.error("Erro ao criar categoria:", error);
@@ -56,11 +40,11 @@ export const categoryService = {
 
     async updateCategory(id, categoryData) {
         try {
-            const updatedCategories = getOptimisticData().map(cat => 
+            const updatedCategories = getLatestData().map(cat => 
                 cat.id === id ? { ...cat, ...categoryData } : cat
             );
             await githubService.saveData('categories.json', updatedCategories);
-            saveOptimisticData(updatedCategories);
+            updateLocalData(updatedCategories);
             return id;
         } catch (error) {
             console.error("Erro ao atualizar categoria:", error);
@@ -70,9 +54,9 @@ export const categoryService = {
 
     async deleteCategory(id) {
         try {
-            const updatedCategories = getOptimisticData().filter(cat => cat.id !== id);
+            const updatedCategories = getLatestData().filter(cat => cat.id !== id);
             await githubService.saveData('categories.json', updatedCategories);
-            saveOptimisticData(updatedCategories);
+            updateLocalData(updatedCategories);
             return id;
         } catch (error) {
             console.error("Erro ao deletar categoria:", error);

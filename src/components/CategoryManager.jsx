@@ -30,7 +30,7 @@ const CategoryManager = () => {
         e.preventDefault();
         if (!newName.trim()) return;
         try {
-            await categoryService.createCategory(newName.trim());
+            await categoryService.createCategory({ name: newName.trim(), visible: true });
             setNewName('');
             loadCategories();
         } catch (error) {

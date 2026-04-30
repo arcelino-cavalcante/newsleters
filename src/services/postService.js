@@ -1,37 +1,21 @@
 import postsData from '../data/posts.json';
 import { githubService } from './githubService';
 
-const OPTIMISTIC_KEY = 'menslog_optimistic_posts';
-const OPTIMISTIC_TTL = 5 * 60 * 1000; // 5 minutos (tempo médio de deploy do GitHub Actions)
+let localPosts = null;
 
-const getOptimisticData = () => {
-    try {
-        const itemStr = localStorage.getItem(OPTIMISTIC_KEY);
-        if (itemStr) {
-            const item = JSON.parse(itemStr);
-            if (Date.now() - item.timestamp < OPTIMISTIC_TTL) {
-                return item.data;
-            } else {
-                localStorage.removeItem(OPTIMISTIC_KEY);
-            }
-        }
-    } catch (e) {
-        console.error(e);
-    }
+const getLatestData = () => {
+    if (localPosts) return localPosts;
     return [...postsData];
 };
 
-const saveOptimisticData = (data) => {
-    localStorage.setItem(OPTIMISTIC_KEY, JSON.stringify({
-        data,
-        timestamp: Date.now()
-    }));
+const updateLocalData = (data) => {
+    localPosts = data;
 };
 
 export const postService = {
     async getPostsPaginated(limitCount = 6, category = 'Todos', lastVisibleDate = null) {
         try {
-            let filteredPosts = getOptimisticData();
+            let filteredPosts = getLatestData();
             
             if (category !== 'Todos') {
                 filteredPosts = filteredPosts.filter(p => p.category === category);
@@ -60,7 +44,7 @@ export const postService = {
 
     async getAllPosts() {
         try {
-            let allPosts = getOptimisticData();
+            let allPosts = getLatestData();
             allPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             return allPosts;
         } catch (error) {
@@ -77,9 +61,9 @@ export const postService = {
                 createdAt: new Date().toISOString()
             };
             
-            const updatedPosts = [...getOptimisticData(), newPost];
+            const updatedPosts = [...getLatestData(), newPost];
             await githubService.saveData('posts.json', updatedPosts);
-            saveOptimisticData(updatedPosts);
+            updateLocalData(updatedPosts);
             return newPost.id;
         } catch (error) {
             console.error("Erro ao criar post:", error);
@@ -89,11 +73,11 @@ export const postService = {
 
     async updatePost(id, postData) {
         try {
-            const updatedPosts = getOptimisticData().map(post => 
+            const updatedPosts = getLatestData().map(post => 
                 post.id === id ? { ...post, ...postData } : post
             );
             await githubService.saveData('posts.json', updatedPosts);
-            saveOptimisticData(updatedPosts);
+            updateLocalData(updatedPosts);
             return id;
         } catch (error) {
             console.error("Erro ao atualizar post:", error);
@@ -103,9 +87,9 @@ export const postService = {
 
     async deletePost(id) {
         try {
-            const updatedPosts = getOptimisticData().filter(post => post.id !== id);
+            const updatedPosts = getLatestData().filter(post => post.id !== id);
             await githubService.saveData('posts.json', updatedPosts);
-            saveOptimisticData(updatedPosts);
+            updateLocalData(updatedPosts);
             return id;
         } catch (error) {
             console.error("Erro ao deletar post:", error);

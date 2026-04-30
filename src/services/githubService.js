@@ -39,7 +39,9 @@ export const githubService = {
     const sha = await this.getFileSha(fileName);
     const message = `Update ${fileName}`;
 
-    await octokit.repos.createOrUpdateFileContents({
+    window.dispatchEvent(new CustomEvent('global-loading', { detail: { isLoading: true, message: 'Enviando alterações...' } }));
+    try {
+      await octokit.repos.createOrUpdateFileContents({
       owner,
       repo,
       path: `src/data/${fileName}`,
@@ -47,6 +49,9 @@ export const githubService = {
       content,
       sha: sha || undefined,
     });
+    } finally {
+      window.dispatchEvent(new CustomEvent('global-loading', { detail: { isLoading: false } }));
+    }
   },
 
   async saveRawFile(path, base64Content, message) {
@@ -54,13 +59,19 @@ export const githubService = {
     if (!token || !owner || !repo) throw new Error("Credenciais do GitHub não encontradas.");
 
     const octokit = new Octokit({ auth: token });
-    await octokit.repos.createOrUpdateFileContents({
-      owner,
-      repo,
-      path,
-      message,
-      content: base64Content,
-    });
+    
+    window.dispatchEvent(new CustomEvent('global-loading', { detail: { isLoading: true, message: 'Enviando arquivo...' } }));
+    try {
+      await octokit.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        path,
+        message,
+        content: base64Content,
+      });
+    } finally {
+      window.dispatchEvent(new CustomEvent('global-loading', { detail: { isLoading: false } }));
+    }
   },
   
   async testConnection(token, owner, repo) {

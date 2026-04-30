@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
-import { X, CheckCircle2, AlertTriangle, AlertCircle, Info } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, AlertCircle, Info, Loader2 } from 'lucide-react';
 
 const ModalContext = createContext(null);
 
@@ -91,7 +91,18 @@ const ConfirmDialog = ({ dialog, onResolve }) => {
 export const ModalProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
     const [confirmDialog, setConfirmDialog] = useState(null);
+    const [globalLoading, setGlobalLoading] = useState(false);
+    const [globalLoadingMessage, setGlobalLoadingMessage] = useState('');
     const resolveRef = useRef(null);
+
+    useEffect(() => {
+        const handleLoading = (e) => {
+            setGlobalLoading(e.detail.isLoading);
+            setGlobalLoadingMessage(e.detail.message || '');
+        };
+        window.addEventListener('global-loading', handleLoading);
+        return () => window.removeEventListener('global-loading', handleLoading);
+    }, []);
 
     const dismissToast = useCallback((id) => {
         setToasts(prev => prev.filter(t => t.id !== id));
@@ -140,6 +151,20 @@ export const ModalProvider = ({ children }) => {
             {/* Confirm Dialog */}
             {confirmDialog && (
                 <ConfirmDialog dialog={confirmDialog} onResolve={handleConfirmResolve} />
+            )}
+            
+            {/* Global Loading Spinner */}
+            {globalLoading && (
+                <div className="fixed inset-0 z-[400] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in-95 duration-200">
+                        <Loader2 className="w-8 h-8 text-neutral-900 dark:text-white animate-spin" />
+                        {globalLoadingMessage && (
+                            <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                                {globalLoadingMessage}
+                            </p>
+                        )}
+                    </div>
+                </div>
             )}
         </ModalContext.Provider>
     );
