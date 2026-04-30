@@ -49,53 +49,73 @@ const SettingsManager = () => {
     if (loading) return <div className="p-12 flex justify-center"><Loader2 className="animate-spin" /></div>;
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-8 max-w-2xl">
-            <h2 className="text-lg font-bold uppercase tracking-widest text-neutral-900 mb-8 border-b border-neutral-100 pb-4">
-                Configurações Gerais
-            </h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
+            <div className="p-6 border-b border-neutral-100 bg-neutral-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h2 className="text-lg font-bold uppercase tracking-widest text-neutral-900">
+                    Configurações Gerais
+                </h2>
+            </div>
 
-            <form onSubmit={handleSave} className="space-y-6">
-                <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
-                        Título do Site (Hero)
-                    </label>
-                    <input
-                        type="text"
-                        className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-black uppercase tracking-tighter focus:border-neutral-400 transition-colors"
-                        value={settings.siteTitle}
-                        onChange={e => setSettings({ ...settings, siteTitle: e.target.value })}
-                        placeholder="EX: O CAMINHO DO HOMEM"
-                    />
-                    <p className="mt-2 text-[10px] text-neutral-500">Texto principal de destaque na página inicial.</p>
-                </div>
+            <div className="p-6">
+                <form onSubmit={handleSave} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
+                                Título do Site (Hero)
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-black uppercase tracking-tighter focus:border-neutral-400 transition-colors"
+                                value={settings.siteTitle}
+                                onChange={e => setSettings({ ...settings, siteTitle: e.target.value })}
+                                placeholder="EX: O CAMINHO DO HOMEM"
+                            />
+                            <p className="mt-2 text-[10px] text-neutral-500">Texto principal de destaque na página inicial.</p>
+                        </div>
 
-                <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
-                        Subtítulo
-                    </label>
-                    <input
-                        type="text"
-                        className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold uppercase tracking-widest focus:border-neutral-400 transition-colors"
-                        value={settings.siteSubtitle}
-                        onChange={e => setSettings({ ...settings, siteSubtitle: e.target.value })}
-                        placeholder="EX: FILOSOFIA APLICADA"
-                    />
-                    <p className="mt-2 text-[10px] text-neutral-500">Pequeno texto acima do título principal.</p>
-                </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
+                                Subtítulo
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold uppercase tracking-widest focus:border-neutral-400 transition-colors"
+                                value={settings.siteSubtitle}
+                                onChange={e => setSettings({ ...settings, siteSubtitle: e.target.value })}
+                                placeholder="EX: FILOSOFIA APLICADA"
+                            />
+                            <p className="mt-2 text-[10px] text-neutral-500">Pequeno texto acima do título principal.</p>
+                        </div>
 
-                <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
-                        Logo da Navegação
-                    </label>
-                    <input
-                        type="text"
-                        className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold uppercase tracking-widest focus:border-neutral-400 transition-colors"
-                        value={settings.navLogo}
-                        onChange={e => setSettings({ ...settings, navLogo: e.target.value })}
-                        placeholder="EX: MENSLOG"
-                    />
-                    <p className="mt-2 text-[10px] text-neutral-500">Nome exibido na barra superior.</p>
-                </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
+                                Logo da Navegação
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold uppercase tracking-widest focus:border-neutral-400 transition-colors"
+                                value={settings.navLogo}
+                                onChange={e => setSettings({ ...settings, navLogo: e.target.value })}
+                                placeholder="EX: MENSLOG"
+                            />
+                            <p className="mt-2 text-[10px] text-neutral-500">Nome exibido na barra superior.</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
+                                Texto do Rodapé
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold tracking-widest focus:border-neutral-400 transition-colors"
+                                value={settings.footerText}
+                                onChange={e => setSettings({ ...settings, footerText: e.target.value })}
+                                placeholder="EX: © 2026 MensLog • Estoicismo Moderno"
+                            />
+                            <p className="mt-2 text-[10px] text-neutral-500">Aparece no final da página.</p>
+                        </div>
+                    </div>
+
 
                 <div>
                     <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
@@ -110,19 +130,7 @@ const SettingsManager = () => {
                     <p className="mt-2 text-[10px] text-neutral-500">Texto exibido ao clicar no ícone de livro.</p>
                 </div>
 
-                <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-neutral-700">
-                        Texto do Rodapé
-                    </label>
-                    <input
-                        type="text"
-                        className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-lg outline-none text-neutral-900 font-bold tracking-widest focus:border-neutral-400 transition-colors"
-                        value={settings.footerText}
-                        onChange={e => setSettings({ ...settings, footerText: e.target.value })}
-                        placeholder="EX: © 2026 MensLog • Estoicismo Moderno"
-                    />
-                    <p className="mt-2 text-[10px] text-neutral-500">Aparece no final da página.</p>
-                </div>
+
 
                 <div className="pt-8 border-t border-neutral-100">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-900 mb-4">Frases do Dia (Rotativas)</h3>
@@ -196,6 +204,7 @@ const SettingsManager = () => {
                     )}
                 </div>
             </form>
+            </div>
         </div>
     );
 };
